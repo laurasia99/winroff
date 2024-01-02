@@ -185,6 +185,11 @@ clean::
     if exist devutf rmdir /s /q devutf
     -del /q *.pdf *.ps
 
+scrub:: clean
+    if exist do-curl.bat del do-curl.bat
+    if exist do-unzip.bat del do-unzip.bat
+    if exist sed.exe del sed.exe
+
 # Demonstration files
 # Note use of command line arguments to override compiled paths (FDIR MDIR)
 BASE = $(_CWD)
@@ -228,3 +233,15 @@ ligature.pdf: roff.exe pdf.exe tests\ligature.ms
     $(GS) $(GSOPTS) -sOutputFile=$@ $(@B).ps
     @rem $(PS2PDF) $(PS2PDFOPTS) $(@B).ps $(@B).pdf
 
+## Git support
+
+git-status:
+    pushd eqn && git status && popd
+    pushd mkfn && git status && popd
+    pushd other && git status && popd
+    pushd pictbl && git status && popd
+    pushd post && git status && popd
+    pushd refer && git status && popd
+    pushd roff && git status && popd
+    pushd sed && git status && popd
+    git status
