@@ -1,0 +1,5230 @@
+!IFNDEF _NMAKE_DEVUTF_INCLUDED
+_NMAKE_DEVUTF_INCLUDED=1
+
+# mkfn.exe
+!IF EXIST(mkfn\NMakefile)
+!INCLUDE .\mkfn\NMakefile
+!ELSE
+!ERROR 'mkfn' required to build 'devutf'
+!ENDIF
+
+# Default fonts
+F=.\fonts
+
+# device resolution
+RES=720
+# scripts to include (latn,arab) [OpenType]
+SCR=-Slatn
+# pattern of ligatures to ignore [relies on sed filter]
+#LIGIGN=(ct|st|sp|Rp)
+
+# Windows System and User font directory
+W = $(WINDIR)\fonts
+V = $(LOCALAPPDATA)\Microsoft\Windows\Fonts
+!MESSAGE Windows System font directory $W
+!MESSAGE Windows User font directory $V
+
+U=devutf
+
+# Note inclusion of shortcuts
+URWFONTS = $U\AB $U\AI $U\AR $U\AX $U\B $U\BI $U\CB $U\CI $U\CR $U\CX \
+        $U\HB $U\HI $U\HR $U\HX $U\I $U\KB $U\KI $U\KR $U\KX $U\NB \
+        $U\NI $U\NR $U\NX $U\PA $U\PB $U\PI $U\PR $U\PX $U\R $U\S \
+        $U\S1 $U\ZI $U\HNB $U\HNI $U\HNR $U\HNX \
+        $U\C059-BdIta $U\C059-Bold $U\C059-Italic $U\C059-Roman \
+        $U\D050000L \
+        $U\NimbusMonoPS-Bold $U\NimbusMonoPS-BoldItalic \
+        $U\NimbusMonoPS-Italic $U\NimbusMonoPS-Regular \
+        $U\NimbusRoman-Bold $U\NimbusRoman-BoldItalic \
+        $U\NimbusRoman-Italic $U\NimbusRoman-Regular \
+        $U\NimbusSans-Bold $U\NimbusSans-BoldItalic \
+        $U\NimbusSans-Italic $U\NimbusSans-Regular \
+        $U\NimbusSansNarrow-Bold $U\NimbusSansNarrow-BoldOblique \
+        $U\NimbusSansNarrow-Oblique $U\NimbusSansNarrow-Regular \
+        $U\P052-Bold $U\P052-BoldItalic $U\P052-Italic $U\P052-Roman \
+        $U\StandardSymbolsPS \
+        $U\URWBookman-Demi $U\URWBookman-DemiItalic \
+        $U\URWBookman-Light $U\URWBookman-LightItalic \
+        $U\URWGothic-Book $U\URWGothic-BookOblique \
+        $U\URWGothic-Demi $U\URWGothic-DemiOblique \
+        $U\Z003-MediumItalic
+
+# Computer Modern - T1 fonts (*.pfb)
+!IF EXIST($U\cmb10.afm)
+CMFONTS = $U\cmb10 $U\cmbsy10 $U\cmbx5 $U\cmbx7 $U\cmbx8 $U\cmbx9 $U\cmbx10 \
+        $U\cmbx12 $U\cmbxsl10 $U\cmbxti10 $U\cmcsc10 $U\cmdunh10 $U\cmex10 \
+        $U\cmff10 $U\cmfi10 $U\cmfib8 $U\cminch $U\cmitt10 $U\cmmi10 \
+        $U\cmmi12 $U\cmmi5 $U\cmmi6 $U\cmmi7 $U\cmmi8 $U\cmmi9 $U\cmmib10 \
+        $U\cmr5 $U\cmr6 $U\cmr7 $U\cmr8 $U\cmr9 $U\cmr10 $U\cmr12 $U\cmr17 \
+        $U\cmsl8 $U\cmsl9 $U\cmsl10 $U\cmsl12 $U\cmsltt10 $U\cmss8 $U\cmss9 \
+        $U\cmss10 $U\cmss12 $U\cmss17 $U\cmssbx10 $U\cmssdc10 $U\cmssi8 \
+        $U\cmssi9 $U\cmssi10 $U\cmssi12 $U\cmssi17 $U\cmssq8 $U\cmssqi8 \
+        $U\cmsy5 $U\cmsy6 $U\cmsy7 $U\cmsy8 $U\cmsy9 $U\cmsy10 $U\cmtcsc10 \
+        $U\cmtex8 $U\cmtex9 $U\cmtex10 $U\cmti7 $U\cmti8 $U\cmti9 $U\cmti10 \
+        $U\cmti12 $U\cmtt8 $U\cmtt9 $U\cmtt10 $U\cmtt12 $U\cmvtt10
+!ENDIF
+
+# OTF implementations of Computer Modern
+# https://cm-unicode.sourceforge.io/index.html
+# *** Assume installed in local user directory, and if one file exists then all exist
+!IF EXIST($V\cmunbbx.ttf)
+CMUFONTS = $U\cmunbbx $U\cmunbi $U\cmunbl $U\cmunbmo \
+        $U\cmunbmr $U\cmunbso $U\cmunbsr $U\cmunbtl $U\cmunbto $U\cmunbx \
+        $U\cmunbxo $U\cmunci $U\cmunit $U\cmunobi $U\cmunobx $U\cmunorm \
+        $U\cmunoti $U\cmunrb $U\cmunrm $U\cmunsi $U\cmunsl $U\cmunso \
+        $U\cmunss $U\cmunssdc $U\cmunst $U\cmunsx $U\cmuntb $U\cmunti \
+        $U\cmuntt $U\cmuntx $U\cmunui $U\cmunvi $U\cmunvt
+!MESSAGE Files: $(CMUFONTS)
+!ENDIF
+
+# Core Windows Fonts
+# Windows 10: https://learn.microsoft.com/en-us/typography/fonts/windows_10_font_list
+# Redistribution FAQ: https://learn.microsoft.com/en-us/typography/fonts/font-faq
+
+WIN10FONTS = $U\arial $U\ariali $U\arialbd $U\arialbi $U\ariblk \
+        $U\bahnschrift \
+        $U\calibril $U\calibrili $U\calibri $U\calibrii $U\calibrib $U\calibriz \
+        $U\cambria $U\cambriai $U\cambriab $U\cambriaz \
+        $U\candaral $U\candarali $U\candara $U\candarai $U\candarab $U\candaraz \
+        $U\comic $U\comici $U\comicbd $U\comicz \
+        $U\consola $U\consolai $U\consolab $U\consolaz \
+        $U\constan $U\constani $U\constanb $U\constanz \
+        $U\corbell $U\corbelli $U\corbel $U\corbeli $U\corbelb $U\corbelz \
+        $U\cour $U\couri $U\courbd $U\courbi \
+        $U\ebrima $U\ebrimabd \
+        $U\framd $U\framdit \
+        $U\gabriola \
+        $U\gadugi $U\gadugib \
+        $U\georgia $U\georgiai $U\georgiab $U\georgiaz \
+        $U\holomdl2 \
+        $U\impact \
+        $U\inkfree \
+        $U\javatext \
+        $U\leelawui $U\leeluisl $U\leelauib \
+        $U\lucon $U\l10646 \
+        $U\malgun $U\malgunbd $U\malgunsl \
+        $U\marlett \
+        $U\himalaya \
+        $U\msjhl $U\msjh $U\msjhbd \
+        $U\ntailu $U\ntailub \
+        $U\phagspa $U\phagspab \
+        $U\micross \
+        $U\taile $U\taileb \
+        $U\msyhl $U\msyh $U\msyhbd \
+        $U\msyi \
+        $U\mingliub \
+        $U\monbaiti \
+        $U\msgothic \
+        $U\mvboli \
+        $U\mmrtext $U\mmrtextb \
+        $U\nirmalas $U\nirmala $U\nirmalab \
+        $U\pala $U\palai $U\palab $U\palabi \
+        $U\segmdl2 \
+        $U\segoepr \
+        $U\segoesc $U\segoescb \
+        $U\segoeuil $U\seguili $U\segoeuisl $U\seguisli $U\segoeui $U\segoeuii \
+        $U\seguisb $U\seguisbi $U\segoeuib $U\segoeuiz $U\seguibl \
+        $U\seguibli $U\seguihis $U\seguiemj $U\seguisym \
+        $U\simsun $U\simsunb \
+        $U\sitka $U\sitkai $U\sitkab $U\sitkaz \
+        $U\sylfaen \
+        $U\symbol \
+        $U\tahoma $U\tahomabd \
+        $U\times $U\timesi $U\timesbd $U\timesbi \
+        $U\trebuc $U\trebucit $U\trebucbd $U\trebucbi \
+        $U\verdana $U\verdanai $U\verdanab $U\verdanaz \
+        $U\webdings \
+        $U\wingding \
+        $U\yugothl $U\yugothr $U\yugothm $U\yugothb
+
+# Windows 10 'Feature on demand' (optional)
+WIN10FOD=
+!IF EXIST($W\aldhabi.ttf)
+WIN10FOD=$(WIN10FOD) $U\aldhabi
+!ENDIF
+!IF EXIST($W\andlso.ttf)
+WIN10FOD=$(WIN10FOD) $U\andlso
+!ENDIF
+!IF EXIST($W\arabtype.ttf)
+WIN10FOD=$(WIN10FOD) $U\arabtype
+!ENDIF
+!IF EXIST($W\msuighur.ttf)
+WIN10FOD=$(WIN10FOD) $U\msuighur
+!ENDIF
+!IF EXIST($W\msuighub.ttf)
+WIN10FOD=$(WIN10FOD) $U\msuighub
+!ENDIF
+!IF EXIST($W\majalla.ttf)
+WIN10FOD=$(WIN10FOD) $U\majalla
+!ENDIF
+!IF EXIST($W\majalla.ttf)
+WIN10FOD=$(WIN10FOD) $U\majallab
+!ENDIF
+!IF EXIST($W\simpo.ttf)
+WIN10FOD=$(WIN10FOD) $U\simpo
+!ENDIF
+!IF EXIST($W\simpbdo.ttf)
+WIN10FOD=$(WIN10FOD) $U\simpbdo
+!ENDIF
+!IF EXIST($W\simpfxo.ttf)
+WIN10FOD=$(WIN10FOD) $U\simpfxo
+!ENDIF
+!IF EXIST($W\trado.ttf)
+WIN10FOD=$(WIN10FOD) $U\trado
+!ENDIF
+!IF EXIST($W\tradbdo.ttf)
+WIN10FOD=$(WIN10FOD) $U\tradbdo
+!ENDIF
+!IF EXIST($W\urdtype.ttf)
+WIN10FOD=$(WIN10FOD) $U\urdtype
+!ENDIF
+!IF EXIST($W\urdtypeb.ttf)
+WIN10FOD=$(WIN10FOD) $U\urdtypeb
+!ENDIF
+!IF EXIST($W\shonar.ttf)
+WIN10FOD=$(WIN10FOD) $U\shonar
+!ENDIF
+!IF EXIST($W\shonarb.ttf)
+WIN10FOD=$(WIN10FOD) $U\shonarb
+!ENDIF
+!IF EXIST($W\vrinda.ttf)
+WIN10FOD=$(WIN10FOD) $U\vrinda
+!ENDIF
+!IF EXIST($W\vrindab.ttf)
+WIN10FOD=$(WIN10FOD) $U\vrindab
+!ENDIF
+!IF EXIST($W\euphemia.ttf)
+WIN10FOD=$(WIN10FOD) $U\euphemia
+!ENDIF
+!IF EXIST($W\plantc.ttf)
+WIN10FOD=$(WIN10FOD) $U\plantc
+!ENDIF
+!IF EXIST($W\aparaj.ttf)
+WIN10FOD=$(WIN10FOD) $U\aparaj
+!ENDIF
+!IF EXIST($W\aparaji.ttf)
+WIN10FOD=$(WIN10FOD) $U\aparaji
+!ENDIF
+!IF EXIST($W\aparajb.ttf)
+WIN10FOD=$(WIN10FOD) $U\aparajb
+!ENDIF
+!IF EXIST($W\aparajbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\aparajbi
+!ENDIF
+!IF EXIST($W\kokila.ttf)
+WIN10FOD=$(WIN10FOD) $U\kokila
+!ENDIF
+!IF EXIST($W\kokilai.ttf)
+WIN10FOD=$(WIN10FOD) $U\kokilai
+!ENDIF
+!IF EXIST($W\kokilab.ttf)
+WIN10FOD=$(WIN10FOD) $U\kokilab
+!ENDIF
+!IF EXIST($W\kokilabi.ttf)
+WIN10FOD=$(WIN10FOD) $U\kokilabi
+!ENDIF
+!IF EXIST($W\mangal.ttf)
+WIN10FOD=$(WIN10FOD) $U\mangal
+!ENDIF
+!IF EXIST($W\mangalb.ttf)
+WIN10FOD=$(WIN10FOD) $U\mangalb
+!ENDIF
+!IF EXIST($W\sanskr.ttf)
+WIN10FOD=$(WIN10FOD) $U\sanskr
+!ENDIF
+!IF EXIST($W\utsaah.ttf)
+WIN10FOD=$(WIN10FOD) $U\utsaah
+!ENDIF
+!IF EXIST($W\utsaahi.ttf)
+WIN10FOD=$(WIN10FOD) $U\utsaahi
+!ENDIF
+!IF EXIST($W\utsaahb.ttf)
+WIN10FOD=$(WIN10FOD) $U\utsaahb
+!ENDIF
+!IF EXIST($W\utsaahbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\utsaahbi
+!ENDIF
+!IF EXIST($W\nyala.ttf)
+WIN10FOD=$(WIN10FOD) $U\nyala
+!ENDIF
+!IF EXIST($W\shruti.ttf)
+WIN10FOD=$(WIN10FOD) $U\shruti
+!ENDIF
+!IF EXIST($W\shrutib.ttf)
+WIN10FOD=$(WIN10FOD) $U\shrutib
+!ENDIF
+!IF EXIST($W\raavi.ttf)
+WIN10FOD=$(WIN10FOD) $U\raavi
+!ENDIF
+!IF EXIST($W\raavib.ttf)
+WIN10FOD=$(WIN10FOD) $U\raavib
+!ENDIF
+!IF EXIST($W\dengl.ttf)
+WIN10FOD=$(WIN10FOD) $U\dengl
+!ENDIF
+!IF EXIST($W\deng.ttf)
+WIN10FOD=$(WIN10FOD) $U\deng
+!ENDIF
+!IF EXIST($W\dengb.ttf)
+WIN10FOD=$(WIN10FOD) $U\dengb
+!ENDIF
+!IF EXIST($W\simfang.ttf)
+WIN10FOD=$(WIN10FOD) $U\simfang
+!ENDIF
+!IF EXIST($W\simkai.ttf)
+WIN10FOD=$(WIN10FOD) $U\simkai
+!ENDIF
+!IF EXIST($W\simhei.ttf)
+WIN10FOD=$(WIN10FOD) $U\simhei
+!ENDIF
+!IF EXIST($W\kaiu.ttf)
+WIN10FOD=$(WIN10FOD) $U\kaiu
+!ENDIF
+!IF EXIST($W\mingliu.ttc)
+WIN10FOD=$(WIN10FOD) $U\mingliu
+!ENDIF
+!IF EXIST($W\ahronbd.ttf)
+WIN10FOD=$(WIN10FOD) $U\ahronbd
+!ENDIF
+!IF EXIST($W\david.ttf)
+WIN10FOD=$(WIN10FOD) $U\david
+!ENDIF
+!IF EXIST($W\davidbd.ttf)
+WIN10FOD=$(WIN10FOD) $U\davidbd
+!ENDIF
+!IF EXIST($W\frank.ttf)
+WIN10FOD=$(WIN10FOD) $U\frank
+!ENDIF
+!IF EXIST($W\gisha.ttf)
+WIN10FOD=$(WIN10FOD) $U\gisha
+!ENDIF
+!IF EXIST($W\gishabd.ttf)
+WIN10FOD=$(WIN10FOD) $U\gishabd
+!ENDIF
+!IF EXIST($W\lvnm.ttf)
+WIN10FOD=$(WIN10FOD) $U\lvnm
+!ENDIF
+!IF EXIST($W\lvnmdb.ttf)
+WIN10FOD=$(WIN10FOD) $U\lvnmdb
+!ENDIF
+!IF EXIST($W\mriam.ttf)
+WIN10FOD=$(WIN10FOD) $U\mriam
+!ENDIF
+!IF EXIST($W\mriamc.ttf)
+WIN10FOD=$(WIN10FOD) $U\mriamc
+!ENDIF
+!IF EXIST($W\nrkis.ttf)
+WIN10FOD=$(WIN10FOD) $U\nrkis
+!ENDIF
+!IF EXIST($W\rod.ttf)
+WIN10FOD=$(WIN10FOD) $U\rod
+!ENDIF
+!IF EXIST($W\biz-udgothicr.ttc)
+WIN10FOD=$(WIN10FOD) $U\biz-udgothicr
+!ENDIF
+!IF EXIST($W\biz-udgothicb.ttc)
+WIN10FOD=$(WIN10FOD) $U\biz-udgothicb
+!ENDIF
+!IF EXIST($W\biz-udminchom.ttc)
+WIN10FOD=$(WIN10FOD) $U\biz-udminchom
+!ENDIF
+!IF EXIST($W\meiryo.ttc)
+WIN10FOD=$(WIN10FOD) $U\meiryo
+!ENDIF
+!IF EXIST($W\meiryob.ttc)
+WIN10FOD=$(WIN10FOD) $U\meiryob
+!ENDIF
+!IF EXIST($W\msmincho.ttc)
+WIN10FOD=$(WIN10FOD) $U\msmincho
+!ENDIF
+!IF EXIST($W\uddigikyokashon-b.ttc)
+WIN10FOD=$(WIN10FOD) $U\uddigikyokashon-b
+!ENDIF
+!IF EXIST($W\uddigikyokashon-r.ttc)
+WIN10FOD=$(WIN10FOD) $U\uddigikyokashon-r
+!ENDIF
+!IF EXIST($W\yuminl.ttf)
+WIN10FOD=$(WIN10FOD) $U\yuminl
+!ENDIF
+!IF EXIST($W\yumin.ttf)
+WIN10FOD=$(WIN10FOD) $U\yumin
+!ENDIF
+!IF EXIST($W\yumindb.ttf)
+WIN10FOD=$(WIN10FOD) $U\yumindb
+!ENDIF
+!IF EXIST($W\tunga.ttf)
+WIN10FOD=$(WIN10FOD) $U\tunga
+!ENDIF
+!IF EXIST($W\tungab.ttf)
+WIN10FOD=$(WIN10FOD) $U\tungab
+!ENDIF
+!IF EXIST($W\daunpenh.ttf)
+WIN10FOD=$(WIN10FOD) $U\daunpenh
+!ENDIF
+!IF EXIST($W\khmerui.ttf)
+WIN10FOD=$(WIN10FOD) $U\khmerui
+!ENDIF
+!IF EXIST($W\khermuib.ttf)
+WIN10FOD=$(WIN10FOD) $U\khermuib
+!ENDIF
+!IF EXIST($W\moolbor.ttf)
+WIN10FOD=$(WIN10FOD) $U\moolbor
+!ENDIF
+!IF EXIST($W\batang.ttc)
+WIN10FOD=$(WIN10FOD) $U\batang
+!ENDIF
+!IF EXIST($W\gulim.ttc)
+WIN10FOD=$(WIN10FOD) $U\gulim
+!ENDIF
+!IF EXIST($W\dokchamp.ttf)
+WIN10FOD=$(WIN10FOD) $U\dokchamp
+!ENDIF
+!IF EXIST($W\laoui.ttf)
+WIN10FOD=$(WIN10FOD) $U\laoui
+!ENDIF
+!IF EXIST($W\laouib.ttf)
+WIN10FOD=$(WIN10FOD) $U\laouib
+!ENDIF
+!IF EXIST($W\kartika.ttf)
+WIN10FOD=$(WIN10FOD) $U\kartika
+!ENDIF
+!IF EXIST($W\kartikab.ttf)
+WIN10FOD=$(WIN10FOD) $U\kartikab
+!ENDIF
+!IF EXIST($W\kalinga.ttf)
+WIN10FOD=$(WIN10FOD) $U\kalinga
+!ENDIF
+!IF EXIST($W\kalingab.ttf)
+WIN10FOD=$(WIN10FOD) $U\kalingab
+!ENDIF
+!IF EXIST($W\arialnova-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova-light
+!ENDIF
+!IF EXIST($W\arialnova-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova-lightitalic
+!ENDIF
+!IF EXIST($W\arialnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova
+!ENDIF
+!IF EXIST($W\arialnova-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova-italic
+!ENDIF
+!IF EXIST($W\arialnova-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova-bold
+!ENDIF
+!IF EXIST($W\arialnova-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnova-bolditalic
+!ENDIF
+!IF EXIST($W\arialnovacond-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond-light
+!ENDIF
+!IF EXIST($W\arialnovacond-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond-lightitalic
+!ENDIF
+!IF EXIST($W\arialnovacond.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond
+!ENDIF
+!IF EXIST($W\arialnovacond-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond-italic
+!ENDIF
+!IF EXIST($W\arialnovacond-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond-bold
+!ENDIF
+!IF EXIST($W\arialnovacond-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\arialnovacond-bolditalic
+!ENDIF
+!IF EXIST($W\georgiapro-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-light
+!ENDIF
+!IF EXIST($W\georgiapro-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-lightitalic
+!ENDIF
+!IF EXIST($W\georgiapro-regular.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-regular
+!ENDIF
+!IF EXIST($W\georgiapro-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-italic
+!ENDIF
+!IF EXIST($W\georgiapro-semibold.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-semibold
+!ENDIF
+!IF EXIST($W\georgiapro-semibolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-semibolditalic
+!ENDIF
+!IF EXIST($W\georigiapro-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\georigiapro-bold
+!ENDIF
+!IF EXIST($W\georgiapro-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-bolditalic
+!ENDIF
+!IF EXIST($W\georgiapro-black.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-black
+!ENDIF
+!IF EXIST($W\georgiapro-blackitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-blackitalic
+!ENDIF
+!IF EXIST($W\georgiapro-condlight.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condlight
+!ENDIF
+!IF EXIST($W\georgiapro-condlightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condlightitalic
+!ENDIF
+!IF EXIST($W\georgiapro-condregular.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condregular
+!ENDIF
+!IF EXIST($W\georgiapro-conditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-conditalic
+!ENDIF
+!IF EXIST($W\georgiapro-condsemibold.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condsemibold
+!ENDIF
+!IF EXIST($W\georgiapro-condsemibolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condsemibolditalic
+!ENDIF
+!IF EXIST($W\georgiapro-condbold.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condbold
+!ENDIF
+!IF EXIST($W\georgiapro-condbolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condbolditalic
+!ENDIF
+!IF EXIST($W\georgiapro-condblack.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condblack
+!ENDIF
+!IF EXIST($W\georgiapro-condblackitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\georgiapro-condblackitalic
+!ENDIF
+!IF EXIST($W\gillsanslightnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanslightnova
+!ENDIF
+!IF EXIST($W\gillsanslightitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanslightitnova
+!ENDIF
+!IF EXIST($W\gillsansnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansnova
+!ENDIF
+!IF EXIST($W\gillsansitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansitnova
+!ENDIF
+!IF EXIST($W\gillsansbonova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansbonova
+!ENDIF
+!IF EXIST($W\gillsansboitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansboitnova
+!ENDIF
+!IF EXIST($W\gillsansultrabonova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansultrabonova
+!ENDIF
+!IF EXIST($W\gillsanscondlightnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondlightnova
+!ENDIF
+!IF EXIST($W\gillsanscondlightitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondlightitnova
+!ENDIF
+!IF EXIST($W\gillsanscondnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondnova
+!ENDIF
+!IF EXIST($W\gillsansconditnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsansconditnova
+!ENDIF
+!IF EXIST($W\gillsanscondbonova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondbonova
+!ENDIF
+!IF EXIST($W\gillsanscondboitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondboitnova
+!ENDIF
+!IF EXIST($W\gillsanscondextranova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondextranova
+!ENDIF
+!IF EXIST($W\gillsanscondextraitnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondextraitnova
+!ENDIF
+!IF EXIST($W\gillsanscondultrabonova.ttf)
+WIN10FOD=$(WIN10FOD) $U\gillsanscondultrabonova
+!ENDIF
+!IF EXIST($W\nhaasgrotesktxpro-55rg.ttf)
+WIN10FOD=$(WIN10FOD) $U\nhaasgrotesktxpro-55rg
+!ENDIF
+!IF EXIST($W\nhaasgrotesktxpro-65md.ttf)
+WIN10FOD=$(WIN10FOD) $U\nhaasgrotesktxpro-65md
+!ENDIF
+!IF EXIST($W\nhaasgrotesktxpro-66mdlt.ttf)
+WIN10FOD=$(WIN10FOD) $U\nhaasgrotesktxpro-66mdlt
+!ENDIF
+!IF EXIST($W\nhaasgrotesktxpro-75bd.ttf)
+WIN10FOD=$(WIN10FOD) $U\nhaasgrotesktxpro-75bd
+!ENDIF
+!IF EXIST($W\nhaasgrotesktxpro-76bdit.ttf)
+WIN10FOD=$(WIN10FOD) $U\nhaasgrotesktxpro-76bdit
+!ENDIF
+!IF EXIST($W\rockwellnova.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova
+!ENDIF
+!IF EXIST($W\rockwellnova-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-bold
+!ENDIF
+!IF EXIST($W\rockwellnova-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-bolditalic
+!ENDIF
+!IF EXIST($W\rockwellnovacond.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond
+!ENDIF
+!IF EXIST($W\rockwellnovacond-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond-bold
+!ENDIF
+!IF EXIST($W\rockwellnovacond-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond-bolditalic
+!ENDIF
+!IF EXIST($W\rockwellnovacond-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond-italic
+!ENDIF
+!IF EXIST($W\rockwellnovacond-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond-light
+!ENDIF
+!IF EXIST($W\rockwellnovacond-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnovacond-lightitalic
+!ENDIF
+!IF EXIST($W\rockwellnova-extrabold.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-extrabold
+!ENDIF
+!IF EXIST($W\rockwellnova-extrabolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-extrabolditalic
+!ENDIF
+!IF EXIST($W\rockwellnova-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-italic
+!ENDIF
+!IF EXIST($W\rockwellnova-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-light
+!ENDIF
+!IF EXIST($W\rockwellnova-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\rockwellnova-lightitalic
+!ENDIF
+!IF EXIST($W\verdanapro-light.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-light
+!ENDIF
+!IF EXIST($W\verdanapro-lightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-lightitalic
+!ENDIF
+!IF EXIST($W\verdanapro-regular.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-regular
+!ENDIF
+!IF EXIST($W\verdanapro-italic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-italic
+!ENDIF
+!IF EXIST($W\verdanapro-semibold.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-semibold
+!ENDIF
+!IF EXIST($W\verdanapro-semibolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-semibolditalic
+!ENDIF
+!IF EXIST($W\verdanapro-bold.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-bold
+!ENDIF
+!IF EXIST($W\verdanapro-bolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-bolditalic
+!ENDIF
+!IF EXIST($W\verdanapro-black.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-black
+!ENDIF
+!IF EXIST($W\verdanapro-blackitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-blackitalic
+!ENDIF
+!IF EXIST($W\verdanapro-condlight.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condlight
+!ENDIF
+!IF EXIST($W\verdanapro-condlightitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condlightitalic
+!ENDIF
+!IF EXIST($W\verdanapro-condregular.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condregular
+!ENDIF
+!IF EXIST($W\verdanapro-conditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-conditalic
+!ENDIF
+!IF EXIST($W\verdanapro-condsemibold.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condsemibold
+!ENDIF
+!IF EXIST($W\verdanapro-condsemibolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condsemibolditalic
+!ENDIF
+!IF EXIST($W\verdanapro-condbold.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condbold
+!ENDIF
+!IF EXIST($W\verdanapro-condbolditalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condbolditalic
+!ENDIF
+!IF EXIST($W\verdanapro-condblack.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condblack
+!ENDIF
+!IF EXIST($W\verdanapro-condblackitalic.ttf)
+WIN10FOD=$(WIN10FOD) $U\verdanapro-condblackitalic
+!ENDIF
+!IF EXIST($W\iskoola.ttf)
+WIN10FOD=$(WIN10FOD) $U\iskoola
+!ENDIF
+!IF EXIST($W\iskoolab.ttf)
+WIN10FOD=$(WIN10FOD) $U\iskoolab
+!ENDIF
+!IF EXIST($W\estre.ttf)
+WIN10FOD=$(WIN10FOD) $U\estre
+!ENDIF
+!IF EXIST($W\latha.ttf)
+WIN10FOD=$(WIN10FOD) $U\latha
+!ENDIF
+!IF EXIST($W\lathab.ttf)
+WIN10FOD=$(WIN10FOD) $U\lathab
+!ENDIF
+!IF EXIST($W\vijaya.ttf)
+WIN10FOD=$(WIN10FOD) $U\vijaya
+!ENDIF
+!IF EXIST($W\vijayab.ttf)
+WIN10FOD=$(WIN10FOD) $U\vijayab
+!ENDIF
+!IF EXIST($W\gautami.ttf)
+WIN10FOD=$(WIN10FOD) $U\gautami
+!ENDIF
+!IF EXIST($W\gautamib.ttf)
+WIN10FOD=$(WIN10FOD) $U\gautamib
+!ENDIF
+!IF EXIST($W\vani.ttf)
+WIN10FOD=$(WIN10FOD) $U\vani
+!ENDIF
+!IF EXIST($W\vanib.ttf)
+WIN10FOD=$(WIN10FOD) $U\vanib
+!ENDIF
+!IF EXIST($W\angsana.ttc)
+WIN10FOD=$(WIN10FOD) $U\angsana
+!ENDIF
+!IF EXIST($W\browalia.ttc)
+WIN10FOD=$(WIN10FOD) $U\browalia
+!ENDIF
+!IF EXIST($W\cordia.ttc)
+WIN10FOD=$(WIN10FOD) $U\cordia
+!ENDIF
+!IF EXIST($W\upcdl.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcdl
+!ENDIF
+!IF EXIST($W\upcdi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcdi
+!ENDIF
+!IF EXIST($W\upcdb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcdb
+!ENDIF
+!IF EXIST($W\upcdbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcdbi
+!ENDIF
+!IF EXIST($W\upcel.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcel
+!ENDIF
+!IF EXIST($W\upcei.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcei
+!ENDIF
+!IF EXIST($W\upceb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upceb
+!ENDIF
+!IF EXIST($W\upcebi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcebi
+!ENDIF
+!IF EXIST($W\upcfl.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcfl
+!ENDIF
+!IF EXIST($W\upcfi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcfi
+!ENDIF
+!IF EXIST($W\upcfb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcfb
+!ENDIF
+!IF EXIST($W\upcfbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcfbi
+!ENDIF
+!IF EXIST($W\upcil.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcil
+!ENDIF
+!IF EXIST($W\upcii.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcii
+!ENDIF
+!IF EXIST($W\upcib.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcib
+!ENDIF
+!IF EXIST($W\upcibi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcibi
+!ENDIF
+!IF EXIST($W\upcjl.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcjl
+!ENDIF
+!IF EXIST($W\upcji.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcji
+!ENDIF
+!IF EXIST($W\upcjb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcjb
+!ENDIF
+!IF EXIST($W\upcjbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcjbi
+!ENDIF
+!IF EXIST($W\upckl.ttf)
+WIN10FOD=$(WIN10FOD) $U\upckl
+!ENDIF
+!IF EXIST($W\upcki.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcki
+!ENDIF
+!IF EXIST($W\upckb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upckb
+!ENDIF
+!IF EXIST($W\upckbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upckbi
+!ENDIF
+!IF EXIST($W\leelawad.ttf)
+WIN10FOD=$(WIN10FOD) $U\leelawad
+!ENDIF
+!IF EXIST($W\leelawdb.ttf)
+WIN10FOD=$(WIN10FOD) $U\leelawdb
+!ENDIF
+!IF EXIST($W\upcll.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcll
+!ENDIF
+!IF EXIST($W\upcli.ttf)
+WIN10FOD=$(WIN10FOD) $U\upcli
+!ENDIF
+!IF EXIST($W\upclb.ttf)
+WIN10FOD=$(WIN10FOD) $U\upclb
+!ENDIF
+!IF EXIST($W\upclbi.ttf)
+WIN10FOD=$(WIN10FOD) $U\upclbi
+!ENDIF
+
+# Microsoft Office fonts (optional)
+
+X=
+!IF EXIST($W\abadi.ttf)
+MSOFFICE=$(MSOFFICE) $U\abadi
+!ENDIF
+!IF EXIST($W\abadiexlt.ttf)
+MSOFFICE=$(MSOFFICE) $U\abadiexlt
+!ENDIF
+!IF EXIST($W\agencyr.ttf)
+MSOFFICE=$(MSOFFICE) $U\agencyr
+!ENDIF
+!IF EXIST($W\agencyb.ttf)
+MSOFFICE=$(MSOFFICE) $U\agencyb
+!ENDIF
+!IF EXIST($W\alger.ttf)
+MSOFFICE=$(MSOFFICE) $U\alger
+!ENDIF
+!IF EXIST($W\arialn.ttf)
+MSOFFICE=$(MSOFFICE) $U\arialn
+!ENDIF
+!IF EXIST($W\arialni.ttf)
+MSOFFICE=$(MSOFFICE) $U\arialni
+!ENDIF
+!IF EXIST($W\arialnb.ttf)
+MSOFFICE=$(MSOFFICE) $U\arialnb
+!ENDIF
+!IF EXIST($W\arialnbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\arialnbi
+!ENDIF
+!IF EXIST($W\arlrdbd.ttf)
+MSOFFICE=$(MSOFFICE) $U\arlrdbd
+!ENDIF
+!IF EXIST($W\avenirnextltpro-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-regular
+!ENDIF
+!IF EXIST($W\avenirnextltpro-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-bold
+!ENDIF
+!IF EXIST($W\avenirnextltpro-boldit.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-boldit
+!ENDIF
+!IF EXIST($W\avenirnextltpro-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-it
+!ENDIF
+!IF EXIST($W\avenirnextltpro-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-light
+!ENDIF
+!IF EXIST($W\avenirnextltpro-lightit.ttf)
+MSOFFICE=$(MSOFFICE) $U\avenirnextltpro-lightit
+!ENDIF
+!IF EXIST($W\baskvill.ttf)
+MSOFFICE=$(MSOFFICE) $U\baskvill
+!ENDIF
+!IF EXIST($W\bell.ttf)
+MSOFFICE=$(MSOFFICE) $U\bell
+!ENDIF
+!IF EXIST($W\bellb.ttf)
+MSOFFICE=$(MSOFFICE) $U\bellb
+!ENDIF
+!IF EXIST($W\belli.ttf)
+MSOFFICE=$(MSOFFICE) $U\belli
+!ENDIF
+!IF EXIST($W\bembo.ttf)
+MSOFFICE=$(MSOFFICE) $U\bembo
+!ENDIF
+!IF EXIST($W\bemboi.ttf)
+MSOFFICE=$(MSOFFICE) $U\bemboi
+!ENDIF
+!IF EXIST($W\brlnsr.ttf)
+MSOFFICE=$(MSOFFICE) $U\brlnsr
+!ENDIF
+!IF EXIST($W\brlnsb.ttf)
+MSOFFICE=$(MSOFFICE) $U\brlnsb
+!ENDIF
+!IF EXIST($W\brlnsdb.ttf)
+MSOFFICE=$(MSOFFICE) $U\brlnsdb
+!ENDIF
+!IF EXIST($W\bernhc.ttf)
+MSOFFICE=$(MSOFFICE) $U\bernhc
+!ENDIF
+!IF EXIST($W\biome.ttf)
+MSOFFICE=$(MSOFFICE) $U\biome
+!ENDIF
+!IF EXIST($W\biome-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\biome-italic
+!ENDIF
+!IF EXIST($W\biome-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\biome-light
+!ENDIF
+!IF EXIST($W\biome-lightitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\biome-lightitalic
+!ENDIF
+!IF EXIST($W\ltcblkad.ttf)
+MSOFFICE=$(MSOFFICE) $U\ltcblkad
+!ENDIF
+!IF EXIST($W\bod_r.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodr
+!ENDIF
+!IF EXIST($W\bod_blar.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodblar
+!ENDIF
+!IF EXIST($W\bod_blai.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodblai
+!ENDIF
+!IF EXIST($W\bod_b.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodb
+!ENDIF
+!IF EXIST($W\bod_bi.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodbi
+!ENDIF
+!IF EXIST($W\bod_i.ttf)
+MSOFFICE=$(MSOFFICE) $U\bodi
+!ENDIF
+!IF EXIST($W\bookos.ttf)
+MSOFFICE=$(MSOFFICE) $U\bookos
+!ENDIF
+!IF EXIST($W\bookosb.ttf)
+MSOFFICE=$(MSOFFICE) $U\bookosb
+!ENDIF
+!IF EXIST($W\bookosbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\bookosbi
+!ENDIF
+!IF EXIST($W\bookosi.ttf)
+MSOFFICE=$(MSOFFICE) $U\bookosi
+!ENDIF
+!IF EXIST($W\bssym1.ttf)
+MSOFFICE=$(MSOFFICE) $U\bssym1
+!ENDIF
+!IF EXIST($W\bssym2.ttf)
+MSOFFICE=$(MSOFFICE) $U\bssym2
+!ENDIF
+!IF EXIST($W\bssym3.ttf)
+MSOFFICE=$(MSOFFICE) $U\bssym3
+!ENDIF
+!IF EXIST("$W\bookshelf symbol 7.ttf")
+MSOFFICE=$(MSOFFICE) "$U\bookshelf symbol 7"
+!ENDIF
+!IF EXIST($W\bkant.ttf)
+MSOFFICE=$(MSOFFICE) $U\bkant
+!ENDIF
+!IF EXIST($W\bradhitc.ttf)
+MSOFFICE=$(MSOFFICE) $U\bradhitc
+!ENDIF
+!IF EXIST($W\britanic.ttf)
+MSOFFICE=$(MSOFFICE) $U\britanic
+!ENDIF
+!IF EXIST($W\broadw.ttf)
+MSOFFICE=$(MSOFFICE) $U\broadw
+!ENDIF
+!IF EXIST($W\brushsci.ttf)
+MSOFFICE=$(MSOFFICE) $U\brushsci
+!ENDIF
+!IF EXIST($W\califr.ttf)
+MSOFFICE=$(MSOFFICE) $U\califr
+!ENDIF
+!IF EXIST($W\califb.ttf)
+MSOFFICE=$(MSOFFICE) $U\califb
+!ENDIF
+!IF EXIST($W\califi.ttf)
+MSOFFICE=$(MSOFFICE) $U\califi
+!ENDIF
+!IF EXIST($W\calist.ttf)
+MSOFFICE=$(MSOFFICE) $U\calist
+!ENDIF
+!IF EXIST($W\calistb.ttf)
+MSOFFICE=$(MSOFFICE) $U\calistb
+!ENDIF
+!IF EXIST($W\calistbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\calistbi
+!ENDIF
+!IF EXIST($W\calisti.ttf)
+MSOFFICE=$(MSOFFICE) $U\calisti
+!ENDIF
+!IF EXIST($W\cavolini.ttf)
+MSOFFICE=$(MSOFFICE) $U\cavolini
+!ENDIF
+!IF EXIST($W\cavolini-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\cavolini-bold
+!ENDIF
+!IF EXIST($W\cavolini-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\cavolini-bolditalic
+!ENDIF
+!IF EXIST($W\cavolini-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\cavolini-italic
+!ENDIF
+!IF EXIST($W\centaur.ttf)
+MSOFFICE=$(MSOFFICE) $U\centaur
+!ENDIF
+!IF EXIST($W\century.ttf)
+MSOFFICE=$(MSOFFICE) $U\century
+!ENDIF
+!IF EXIST($W\gothic.ttf)
+MSOFFICE=$(MSOFFICE) $U\gothic
+!ENDIF
+!IF EXIST($W\gothicb.ttf)
+MSOFFICE=$(MSOFFICE) $U\gothicb
+!ENDIF
+!IF EXIST($W\gothicbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\gothicbi
+!ENDIF
+!IF EXIST($W\gothici.ttf)
+MSOFFICE=$(MSOFFICE) $U\gothici
+!ENDIF
+!IF EXIST($W\censcbo.ttf)
+MSOFFICE=$(MSOFFICE) $U\censcbo
+!ENDIF
+!IF EXIST($W\schlbkb.ttf)
+MSOFFICE=$(MSOFFICE) $U\schlbkb
+!ENDIF
+!IF EXIST($W\schlbkbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\schlbkbi
+!ENDIF
+!IF EXIST($W\schlbki.ttf)
+MSOFFICE=$(MSOFFICE) $U\schlbki
+!ENDIF
+!IF EXIST($W\chiller.ttf)
+MSOFFICE=$(MSOFFICE) $U\chiller
+!ENDIF
+!IF EXIST($W\colonna.ttf)
+MSOFFICE=$(MSOFFICE) $U\colonna
+!ENDIF
+!IF EXIST($W\coopbl.ttf)
+MSOFFICE=$(MSOFFICE) $U\coopbl
+!ENDIF
+!IF EXIST($W\coprgtb.ttf)
+MSOFFICE=$(MSOFFICE) $U\coprgtb
+!ENDIF
+!IF EXIST($W\coprgtl.ttf)
+MSOFFICE=$(MSOFFICE) $U\coprgtl
+!ENDIF
+!IF EXIST($W\dante.ttf)
+MSOFFICE=$(MSOFFICE) $U\dante
+!ENDIF
+!IF EXIST($W\daytona.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytona
+!ENDIF
+!IF EXIST($W\daytonabold.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonabold
+!ENDIF
+!IF EXIST($W\daytonabolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonabolditalic
+!ENDIF
+!IF EXIST($W\daytonaitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonaitalic
+!ENDIF
+!IF EXIST($W\daytonapro-cond.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonapro-cond
+!ENDIF
+!IF EXIST($W\daytonapro-condlight.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonapro-condlight
+!ENDIF
+!IF EXIST($W\daytonapro-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonapro-light
+!ENDIF
+!IF EXIST($W\daytonapro-lightitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\daytonapro-lightitalic
+!ENDIF
+!IF EXIST($W\itcedscr.ttf)
+MSOFFICE=$(MSOFFICE) $U\itcedscr
+!ENDIF
+!IF EXIST($W\erasbd.ttf)
+MSOFFICE=$(MSOFFICE) $U\erasbd
+!ENDIF
+!IF EXIST($W\erasdemi.ttf)
+MSOFFICE=$(MSOFFICE) $U\erasdemi
+!ENDIF
+!IF EXIST($W\eraslght.ttf)
+MSOFFICE=$(MSOFFICE) $U\eraslght
+!ENDIF
+!IF EXIST($W\erasmd.ttf)
+MSOFFICE=$(MSOFFICE) $U\erasmd
+!ENDIF
+!IF EXIST($W\erasult.ttf)
+MSOFFICE=$(MSOFFICE) $U\erasult
+!ENDIF
+!IF EXIST($W\felixti.ttf)
+MSOFFICE=$(MSOFFICE) $U\felixti
+!ENDIF
+!IF EXIST($W\ftltlt.ttf)
+MSOFFICE=$(MSOFFICE) $U\ftltlt
+!ENDIF
+!IF EXIST($W\forte.ttf)
+MSOFFICE=$(MSOFFICE) $U\forte
+!ENDIF
+!IF EXIST($W\frabk.ttf)
+MSOFFICE=$(MSOFFICE) $U\frabk
+!ENDIF
+!IF EXIST($W\frabkit.ttf)
+MSOFFICE=$(MSOFFICE) $U\frabkit
+!ENDIF
+!IF EXIST($W\fradm.ttf)
+MSOFFICE=$(MSOFFICE) $U\fradm
+!ENDIF
+!IF EXIST($W\fradmcn.ttf)
+MSOFFICE=$(MSOFFICE) $U\fradmcn
+!ENDIF
+!IF EXIST($W\fradmit.ttf)
+MSOFFICE=$(MSOFFICE) $U\fradmit
+!ENDIF
+!IF EXIST($W\frahv.ttf)
+MSOFFICE=$(MSOFFICE) $U\frahv
+!ENDIF
+!IF EXIST($W\frahvit.ttf)
+MSOFFICE=$(MSOFFICE) $U\frahvit
+!ENDIF
+!IF EXIST($W\framdcn.ttf)
+MSOFFICE=$(MSOFFICE) $U\framdcn
+!ENDIF
+!IF EXIST($W\freesscpt.ttf)
+MSOFFICE=$(MSOFFICE) $U\freesscpt
+!ENDIF
+!IF EXIST($W\gara.ttf)
+MSOFFICE=$(MSOFFICE) $U\gara
+!ENDIF
+!IF EXIST($W\garabd.ttf)
+MSOFFICE=$(MSOFFICE) $U\garabd
+!ENDIF
+!IF EXIST($W\garait.ttf)
+MSOFFICE=$(MSOFFICE) $U\garait
+!ENDIF
+!IF EXIST($W\gigi.ttf)
+MSOFFICE=$(MSOFFICE) $U\gigi
+!ENDIF
+!IF EXIST($W\gil_____.ttf)
+MSOFFICE=$(MSOFFICE) $U\gil
+!ENDIF
+!IF EXIST($W\gilb____.ttf)
+MSOFFICE=$(MSOFFICE) $U\gilb
+!ENDIF
+!IF EXIST($W\gilbi___.ttf)
+MSOFFICE=$(MSOFFICE) $U\gilbi
+!ENDIF
+!IF EXIST($W\gili____.ttf)
+MSOFFICE=$(MSOFFICE) $U\gili
+!ENDIF
+!IF EXIST($W\gilsanub.ttf)
+MSOFFICE=$(MSOFFICE) $U\gilsanub
+!ENDIF
+!IF EXIST($W\gillubcd.ttf)
+MSOFFICE=$(MSOFFICE) $U\gillubcd
+!ENDIF
+!IF EXIST($W\glecb.ttf)
+MSOFFICE=$(MSOFFICE) $U\glecb
+!ENDIF
+!IF EXIST($W\goudos.ttf)
+MSOFFICE=$(MSOFFICE) $U\goudos
+!ENDIF
+!IF EXIST($W\goudosb.ttf)
+MSOFFICE=$(MSOFFICE) $U\goudosb
+!ENDIF
+!IF EXIST($W\goudosi.ttf)
+MSOFFICE=$(MSOFFICE) $U\goudosi
+!ENDIF
+!IF EXIST($W\grotesque.ttf)
+MSOFFICE=$(MSOFFICE) $U\grotesque
+!ENDIF
+!IF EXIST($W\grotesqueb.ttf)
+MSOFFICE=$(MSOFFICE) $U\grotesqueb
+!ENDIF
+!IF EXIST($W\grotesquel.ttf)
+MSOFFICE=$(MSOFFICE) $U\grotesquel
+!ENDIF
+!IF EXIST($W\hadasah.ttf)
+MSOFFICE=$(MSOFFICE) $U\hadasah
+!ENDIF
+!IF EXIST($W\hadasahb.ttf)
+MSOFFICE=$(MSOFFICE) $U\hadasahb
+!ENDIF
+!IF EXIST($W\harngton.ttf)
+MSOFFICE=$(MSOFFICE) $U\harngton
+!ENDIF
+!IF EXIST($W\hggothice.ttf)
+MSOFFICE=$(MSOFFICE) $U\hggothice
+!ENDIF
+!IF EXIST($W\hgpgothice.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgpgothice
+!ENDIF
+!IF EXIST($W\hgsgothice.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgsgothice
+!ENDIF
+!IF EXIST($W\hgmine.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgmine
+!ENDIF
+!IF EXIST($W\hgsmine.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgpmine
+!ENDIF
+!IF EXIST($W\hgsmine.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgsmine
+!ENDIF
+!IF EXIST($W\hgsoeikakugothicub.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgsoeikakugothicub
+!ENDIF
+!IF EXIST($W\hgpsoeikakugothicub.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgpsoeikakugothicub
+!ENDIF
+!IF EXIST($W\hgssoeikakugothicub.ttf)
+MSOFFICE=$(MSOFFICE) $U\hgssoeikakugothicub
+!ENDIF
+!IF EXIST($W\htowert.ttf)
+MSOFFICE=$(MSOFFICE) $U\htowert
+!ENDIF
+!IF EXIST($W\htowerti.ttf)
+MSOFFICE=$(MSOFFICE) $U\htowerti
+!ENDIF
+!IF EXIST($W\imprisha.ttf)
+MSOFFICE=$(MSOFFICE) $U\imprisha
+!ENDIF
+!IF EXIST($W\jokerman.ttf)
+MSOFFICE=$(MSOFFICE) $U\jokerman
+!ENDIF
+!IF EXIST($W\juice___.ttf)
+MSOFFICE=$(MSOFFICE) $U\juice
+!ENDIF
+!IF EXIST($W\kigeliaarabic-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigeliaarabic-light
+!ENDIF
+!IF EXIST($W\kigeliaarabic-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigeliaarabic-regular
+!ENDIF
+!IF EXIST($W\kigelia-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-bold
+!ENDIF
+!IF EXIST($W\kigelia-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-bolditalic
+!ENDIF
+!IF EXIST($W\kigelia-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-italic
+!ENDIF
+!IF EXIST($W\kigelia-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-light
+!ENDIF
+!IF EXIST($W\kigelia-lightitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-lightitalic
+!ENDIF
+!IF EXIST($W\kigelia-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\kigelia-regular
+!ENDIF
+!IF EXIST($W\itckrist.ttf)
+MSOFFICE=$(MSOFFICE) $U\itckrist
+!ENDIF
+!IF EXIST($W\kunstler.ttf)
+MSOFFICE=$(MSOFFICE) $U\kunstler
+!ENDIF
+!IF EXIST($W\lbrite.ttf)
+MSOFFICE=$(MSOFFICE) $U\lbrite
+!ENDIF
+!IF EXIST($W\lbrited.ttf)
+MSOFFICE=$(MSOFFICE) $U\lbrited
+!ENDIF
+!IF EXIST($W\lbritedi.ttf)
+MSOFFICE=$(MSOFFICE) $U\lbritedi
+!ENDIF
+!IF EXIST($W\lbritei.ttf)
+MSOFFICE=$(MSOFFICE) $U\lbritei
+!ENDIF
+!IF EXIST($W\lcallig.ttf)
+MSOFFICE=$(MSOFFICE) $U\lcallig
+!ENDIF
+!IF EXIST($W\lfaxd.ttf)
+MSOFFICE=$(MSOFFICE) $U\lfaxd
+!ENDIF
+!IF EXIST($W\lfaxdi.ttf)
+MSOFFICE=$(MSOFFICE) $U\lfaxdi
+!ENDIF
+!IF EXIST($W\lfaxi.ttf)
+MSOFFICE=$(MSOFFICE) $U\lfaxi
+!ENDIF
+!IF EXIST($W\lfax.ttf)
+MSOFFICE=$(MSOFFICE) $U\lfax
+!ENDIF
+!IF EXIST($W\lhandw.ttf)
+MSOFFICE=$(MSOFFICE) $U\lhandw
+!ENDIF
+!IF EXIST($W\lsansdi.ttf)
+MSOFFICE=$(MSOFFICE) $U\lsansdi
+!ENDIF
+!IF EXIST($W\lsansd.ttf)
+MSOFFICE=$(MSOFFICE) $U\lsansd
+!ENDIF
+!IF EXIST($W\lsansi.ttf)
+MSOFFICE=$(MSOFFICE) $U\lsansi
+!ENDIF
+!IF EXIST($W\lsans.ttf)
+MSOFFICE=$(MSOFFICE) $U\lsans
+!ENDIF
+!IF EXIST($W\ltypeb.ttf)
+MSOFFICE=$(MSOFFICE) $U\ltypeb
+!ENDIF
+!IF EXIST($W\ltypebo.ttf)
+MSOFFICE=$(MSOFFICE) $U\ltypebo
+!ENDIF
+!IF EXIST($W\ltypeo.ttf)
+MSOFFICE=$(MSOFFICE) $U\ltypeo
+!ENDIF
+!IF EXIST($W\ltype.ttf)
+MSOFFICE=$(MSOFFICE) $U\ltype
+!ENDIF
+!IF EXIST($W\magnetob.ttf)
+MSOFFICE=$(MSOFFICE) $U\magnetob
+!ENDIF
+!IF EXIST($W\maian.ttf)
+MSOFFICE=$(MSOFFICE) $U\maian
+!ENDIF
+!IF EXIST($W\maiandb.ttf)
+MSOFFICE=$(MSOFFICE) $U\maiandb
+!ENDIF
+!IF EXIST($W\maiandit.ttf)
+MSOFFICE=$(MSOFFICE) $U\maiandit
+!ENDIF
+!IF EXIST($W\maturasc.ttf)
+MSOFFICE=$(MSOFFICE) $U\maturasc
+!ENDIF
+!IF EXIST($W\msgothicneo.ttf)
+MSOFFICE=$(MSOFFICE) $U\msgothicneo
+!ENDIF
+!IF EXIST($W\msgothicneobold.ttf)
+MSOFFICE=$(MSOFFICE) $U\msgothicneobold
+!ENDIF
+!IF EXIST($W\msgothicneolight.ttf)
+MSOFFICE=$(MSOFFICE) $U\msgothicneolight
+!ENDIF
+!IF EXIST($W\mistral.ttf)
+MSOFFICE=$(MSOFFICE) $U\mistral
+!ENDIF
+!IF EXIST($W\modernlove-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\modernlove-regular
+!ENDIF
+!IF EXIST($W\modernlove-caps.ttf)
+MSOFFICE=$(MSOFFICE) $U\modernlove-caps
+!ENDIF
+!IF EXIST($W\modernlove-grunge.ttf)
+MSOFFICE=$(MSOFFICE) $U\modernlove-grunge
+!ENDIF
+!IF EXIST($W\mod20.ttf)
+MSOFFICE=$(MSOFFICE) $U\mod20
+!ENDIF
+!IF EXIST($W\outlook.ttf)
+MSOFFICE=$(MSOFFICE) $U\outlook
+!ENDIF
+!IF EXIST($W\msref1.ttf)
+MSOFFICE=$(MSOFFICE) $U\msref1
+!ENDIF
+!IF EXIST($W\msref2.ttf)
+MSOFFICE=$(MSOFFICE) $U\msref2
+!ENDIF
+!IF EXIST("$W\ms reference sans serif.ttf")
+MSOFFICE=$(MSOFFICE) "$U\ms reference sans serif"
+!ENDIF
+!IF EXIST($W\refsanb.ttf)
+MSOFFICE=$(MSOFFICE) $U\refsanb
+!ENDIF
+!IF EXIST($W\refsanbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\refsanbi
+!ENDIF
+!IF EXIST($W\refsani.ttf)
+MSOFFICE=$(MSOFFICE) $U\refsani
+!ENDIF
+!IF EXIST("$W\ms reference specialty.ttf")
+MSOFFICE=$(MSOFFICE) "$U\ms reference specialty"
+!ENDIF
+!IF EXIST($W\mtextra.ttf)
+MSOFFICE=$(MSOFFICE) $U\mtextra
+!ENDIF
+!IF EXIST($W\nwgthc.ttf)
+MSOFFICE=$(MSOFFICE) $U\nwgthc
+!ENDIF
+!IF EXIST($W\nwgthcb.ttf)
+MSOFFICE=$(MSOFFICE) $U\nwgthcb
+!ENDIF
+!IF EXIST($W\nwgthci.ttf)
+MSOFFICE=$(MSOFFICE) $U\nwgthci
+!ENDIF
+!IF EXIST($W\niageng.ttf)
+MSOFFICE=$(MSOFFICE) $U\niageng
+!ENDIF
+!IF EXIST($W\niagsol.ttf)
+MSOFFICE=$(MSOFFICE) $U\niagsol
+!ENDIF
+!IF EXIST($W\ocrb.ttf)
+MSOFFICE=$(MSOFFICE) $U\ocrb
+!ENDIF
+!IF EXIST($W\onyx.ttf)
+MSOFFICE=$(MSOFFICE) $U\onyx
+!ENDIF
+!IF EXIST($W\palscri.ttf)
+MSOFFICE=$(MSOFFICE) $U\palscri
+!ENDIF
+!IF EXIST($W\papyrus.ttf)
+MSOFFICE=$(MSOFFICE) $U\papyrus
+!ENDIF
+!IF EXIST($W\per_____.ttf)
+MSOFFICE=$(MSOFFICE) $U\per
+!ENDIF
+!IF EXIST($W\perb____.ttf)
+MSOFFICE=$(MSOFFICE) $U\perb
+!ENDIF
+!IF EXIST($W\perbi___.ttf)
+MSOFFICE=$(MSOFFICE) $U\perbi
+!ENDIF
+!IF EXIST($W\peri____.ttf)
+MSOFFICE=$(MSOFFICE) $U\peri
+!ENDIF
+!IF EXIST($W\pertibd.ttf)
+MSOFFICE=$(MSOFFICE) $U\pertibd
+!ENDIF
+!IF EXIST($W\pertili.ttf)
+MSOFFICE=$(MSOFFICE) $U\pertili
+!ENDIF
+!IF EXIST($W\playbill.ttf)
+MSOFFICE=$(MSOFFICE) $U\playbill
+!ENDIF
+!IF EXIST($W\posterama-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\posterama-regular
+!ENDIF
+!IF EXIST($W\posterama-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\posterama-bold
+!ENDIF
+!IF EXIST($W\posterama-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\posterama-bolditalic
+!ENDIF
+!IF EXIST($W\posterama-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\posterama-italic
+!ENDIF
+!IF EXIST($W\pristina.ttf)
+MSOFFICE=$(MSOFFICE) $U\pristina
+!ENDIF
+!IF EXIST($W\quiresans-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresans-regular
+!ENDIF
+!IF EXIST($W\quiresans-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresans-bold
+!ENDIF
+!IF EXIST($W\quiresans-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresans-bolditalic
+!ENDIF
+!IF EXIST($W\quiresans-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresans-italic
+!ENDIF
+!IF EXIST($W\quiresanspro-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresanspro-light
+!ENDIF
+!IF EXIST($W\quiresanspro-lightitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\quiresanspro-lightitalic
+!ENDIF
+!IF EXIST($W\rage.ttf)
+MSOFFICE=$(MSOFFICE) $U\rage
+!ENDIF
+!IF EXIST($W\ravie.ttf)
+MSOFFICE=$(MSOFFICE) $U\ravie
+!ENDIF
+!IF EXIST($W\rock.ttf)
+MSOFFICE=$(MSOFFICE) $U\rock
+!ENDIF
+!IF EXIST($W\rockb.ttf)
+MSOFFICE=$(MSOFFICE) $U\rockb
+!ENDIF
+!IF EXIST($W\rockbi.ttf)
+MSOFFICE=$(MSOFFICE) $U\rockbi
+!ENDIF
+!IF EXIST($W\rocc____.ttf)
+MSOFFICE=$(MSOFFICE) $U\rocc
+!ENDIF
+!IF EXIST($W\roccb___.ttf)
+MSOFFICE=$(MSOFFICE) $U\roccb
+!ENDIF
+!IF EXIST($W\rockeb.ttf)
+MSOFFICE=$(MSOFFICE) $U\rockeb
+!ENDIF
+!IF EXIST($W\rocki.ttf)
+MSOFFICE=$(MSOFFICE) $U\rocki
+!ENDIF
+!IF EXIST($W\rockl.ttf)
+MSOFFICE=$(MSOFFICE) $U\rockl
+!ENDIF
+!IF EXIST($W\sabonnreglt_57607.ttf)
+MSOFFICE=$(MSOFFICE) $U\sabonnreglt
+!ENDIF
+!IF EXIST($W\sabonnbollt_57570.ttf)
+MSOFFICE=$(MSOFFICE) $U\sabonnbollt
+!ENDIF
+!IF EXIST($W\sabonnbolitalt_57572.ttf)
+MSOFFICE=$(MSOFFICE) $U\sabonnbolitalt
+!ENDIF
+!IF EXIST($W\sabonnregitalt_57602.ttf)
+MSOFFICE=$(MSOFFICE) $U\sabonnregitalt
+!ENDIF
+!IF EXIST($W\sagona-book.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-book
+!ENDIF
+!IF EXIST($W\sagona-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-bold
+!ENDIF
+!IF EXIST($W\sagona-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-bolditalic
+!ENDIF
+!IF EXIST($W\sagona-bookitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-bookitalic
+!ENDIF
+!IF EXIST($W\sagona-extralight.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-extralight
+!ENDIF
+!IF EXIST($W\sagona-extralightitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\sagona-extralightitalic
+!ENDIF
+!IF EXIST($W\scriptbl.ttf)
+MSOFFICE=$(MSOFFICE) $U\scriptbl
+!ENDIF
+!IF EXIST($W\selawk.ttf)
+MSOFFICE=$(MSOFFICE) $U\selawk
+!ENDIF
+!IF EXIST($W\selawkb.ttf)
+MSOFFICE=$(MSOFFICE) $U\selawkb
+!ENDIF
+!IF EXIST($W\selawkl.ttf)
+MSOFFICE=$(MSOFFICE) $U\selawkl
+!ENDIF
+!IF EXIST($W\selawksb.ttf)
+MSOFFICE=$(MSOFFICE) $U\selawksb
+!ENDIF
+!IF EXIST($W\selawksl.ttf)
+MSOFFICE=$(MSOFFICE) $U\selawksl
+!ENDIF
+!IF EXIST($W\stcaiyun.ttf)
+MSOFFICE=$(MSOFFICE) $U\stcaiyun
+!ENDIF
+!IF EXIST($W\stfangso.ttf)
+MSOFFICE=$(MSOFFICE) $U\stfangso
+!ENDIF
+!IF EXIST($W\sthupo.ttf)
+MSOFFICE=$(MSOFFICE) $U\sthupo
+!ENDIF
+!IF EXIST($W\stkaiti.ttf)
+MSOFFICE=$(MSOFFICE) $U\stkaiti
+!ENDIF
+!IF EXIST($W\stxihei.ttf)
+MSOFFICE=$(MSOFFICE) $U\stxihei
+!ENDIF
+!IF EXIST($W\stxingka.ttf)
+MSOFFICE=$(MSOFFICE) $U\stxingka
+!ENDIF
+!IF EXIST($W\stxinwei.ttf)
+MSOFFICE=$(MSOFFICE) $U\stxinwei
+!ENDIF
+!IF EXIST($W\stzhongs.ttf)
+MSOFFICE=$(MSOFFICE) $U\stzhongs
+!ENDIF
+!IF EXIST($W\tempsitc.ttf)
+MSOFFICE=$(MSOFFICE) $U\tempsitc
+!ENDIF
+!IF EXIST($W\thehandregular.ttf)
+MSOFFICE=$(MSOFFICE) $U\thehandregular
+!ENDIF
+!IF EXIST($W\thehandblack.ttf)
+MSOFFICE=$(MSOFFICE) $U\thehandblack
+!ENDIF
+!IF EXIST($W\thehandbold.ttf)
+MSOFFICE=$(MSOFFICE) $U\thehandbold
+!ENDIF
+!IF EXIST($W\thehandextrablack.ttf)
+MSOFFICE=$(MSOFFICE) $U\thehandextrablack
+!ENDIF
+!IF EXIST($W\thehandlight.ttf)
+MSOFFICE=$(MSOFFICE) $U\thehandlight
+!ENDIF
+!IF EXIST($W\the-serif-hand-regular-v2.ttf)
+MSOFFICE=$(MSOFFICE) $U\the-serif-hand-regular-v2
+!ENDIF
+!IF EXIST($W\the-serif-hand-black-v2.ttf)
+MSOFFICE=$(MSOFFICE) $U\the-serif-hand-black-v2
+!ENDIF
+!IF EXIST($W\the-serif-hand-bold-v2.ttf)
+MSOFFICE=$(MSOFFICE) $U\the-serif-hand-bold-v2
+!ENDIF
+!IF EXIST($W\the-serif-hand-extrablk-v2.ttf)
+MSOFFICE=$(MSOFFICE) $U\the-serif-hand-extrablk-v2
+!ENDIF
+!IF EXIST($W\the-serif-hand-light-v2.ttf)
+MSOFFICE=$(MSOFFICE) $U\the-serif-hand-light-v2
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro-bold
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro-bolditalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro-bolditalic
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro-italic.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro-italic
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro-thin.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro-thin
+!ENDIF
+!IF EXIST($W\tisaoffcserifpro-thinitalic.ttf)
+MSOFFICE=$(MSOFFICE) $U\tisaoffcserifpro-thinitalic
+!ENDIF
+!IF EXIST($W\tcm_____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tcm
+!ENDIF
+!IF EXIST($W\tcb_____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tcb
+!ENDIF
+!IF EXIST($W\tcbi____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tcbi
+!ENDIF
+!IF EXIST($W\tcmi____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tcmi
+!ENDIF
+!IF EXIST($W\tccm____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tccm
+!ENDIF
+!IF EXIST($W\tccb____.ttf)
+MSOFFICE=$(MSOFFICE) $U\tccb
+!ENDIF
+!IF EXIST($W\tcceb.ttf)
+MSOFFICE=$(MSOFFICE) $U\tcceb
+!ENDIF
+!IF EXIST($W\uddigikyokashon-b.ttc)
+MSOFFICE=$(MSOFFICE) $U\uddigikyokashon-b.ttc
+!ENDIF
+!IF EXIST($W\uddigikyokashon-r.ttc)
+MSOFFICE=$(MSOFFICE) $U\uddigikyokashon-r.ttc
+!ENDIF
+!IF EXIST($W\univers-regular.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-regular
+!ENDIF
+!IF EXIST($W\univers-condensed.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-condensed
+!ENDIF
+!IF EXIST($W\univers-light.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-light
+!ENDIF
+!IF EXIST($W\univers-lightcondensed.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-lightcondensed
+!ENDIF
+!IF EXIST($W\univers-bold.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-bold
+!ENDIF
+!IF EXIST($W\univers-boldcondensed.ttf)
+MSOFFICE=$(MSOFFICE) $U\univers-boldcondensed
+!ENDIF
+!IF EXIST($W\vineritc.ttf)
+MSOFFICE=$(MSOFFICE) $U\vineritc
+!ENDIF
+!IF EXIST($W\vivaldii.ttf)
+MSOFFICE=$(MSOFFICE) $U\vivaldii
+!ENDIF
+!IF EXIST($W\walbaumdisp-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-rg
+!ENDIF
+!IF EXIST($W\walbaumdisp-bd.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-bd
+!ENDIF
+!IF EXIST($W\walbaumdisp-bdit.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-bdit
+!ENDIF
+!IF EXIST($W\walbaumdisp-hv-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-hv-rg
+!ENDIF
+!IF EXIST($W\walbaumdisp-hv-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-hv-it
+!ENDIF
+!IF EXIST($W\walbaumdisp-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-it
+!ENDIF
+!IF EXIST($W\walbaumdisp-lt-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-lt-rg
+!ENDIF
+!IF EXIST($W\walbaumdisp-lt-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-lt-it
+!ENDIF
+!IF EXIST($W\walbaumdisp-sb-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-sb-rg
+!ENDIF
+!IF EXIST($W\walbaumdisp-sb-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumdisp-sb-it
+!ENDIF
+!IF EXIST($W\walbaumhead-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumhead-rg
+!ENDIF
+!IF EXIST($W\walbaumhead-bd.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumhead-bd
+!ENDIF
+!IF EXIST($W\walbaumhead-bdit.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumhead-bdit
+!ENDIF
+!IF EXIST($W\walbaumhead-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumhead-it
+!ENDIF
+!IF EXIST($W\walbaumtext-rg.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumtext-rg
+!ENDIF
+!IF EXIST($W\walbaumtext-bd.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumtext-bd
+!ENDIF
+!IF EXIST($W\walbaumtext-bdit.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumtext-bdit
+!ENDIF
+!IF EXIST($W\walbaumtext-it.ttf)
+MSOFFICE=$(MSOFFICE) $U\walbaumtext-it
+!ENDIF
+!IF EXIST($W\latinwd.ttf)
+MSOFFICE=$(MSOFFICE) $U\latinwd
+!ENDIF
+
+# Other Microsoft fonts (historical?)
+MSOTHER=
+!IF EXIST($W\almanac.ttf)
+MSOTHER=$(MSOTHER) $U\almanac
+!ENDIF
+!IF EXIST($W\ameriunc.ttf)
+MSOTHER=$(MSOTHER) $U\ameriunc
+!ENDIF
+!IF EXIST($W\andalemo.ttf)
+MSOTHER=$(MSOTHER) $U\andalemo
+!ENDIF
+!IF EXIST($W\andyb.ttf)
+MSOTHER=$(MSOTHER) $U\andyb
+!ENDIF
+!IF EXIST($W\artro.ttf)
+MSOTHER=$(MSOTHER) $U\artro
+!ENDIF
+!IF EXIST($W\artrbdo.ttf)
+MSOTHER=$(MSOTHER) $U\artrbdo
+!ENDIF
+!IF EXIST($W\msgeonr1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeonr1
+!ENDIF
+!IF EXIST($W\msgeonb1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeonb1
+!ENDIF
+!IF EXIST($W\msgeoni1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeoni1
+!ENDIF
+!IF EXIST($W\msgeonr2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeonr2
+!ENDIF
+!IF EXIST($W\msgeonb2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeonb2
+!ENDIF
+!IF EXIST($W\msgeoni2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeoni2
+!ENDIF
+!IF EXIST($W\arialuni.ttf)
+MSOTHER=$(MSOTHER) $U\arialuni
+!ENDIF
+!IF EXIST($W\augsburg.ttf)
+MSOTHER=$(MSOTHER) $U\augsburg
+!ENDIF
+!IF EXIST($W\bauhs93.ttf)
+MSOTHER=$(MSOTHER) $U\bauhs93
+!ENDIF
+!IF EXIST($W\beesknee.ttf)
+MSOTHER=$(MSOTHER) $U\beesknee
+!ENDIF
+!IF EXIST($W\bicklysc.ttf)
+MSOTHER=$(MSOTHER) $U\bicklysc
+!ENDIF
+!IF EXIST($W\bod_cr.ttf)
+MSOTHER=$(MSOTHER) $U\bodcr
+!ENDIF
+!IF EXIST($W\bod_cb.ttf)
+MSOTHER=$(MSOTHER) $U\bodcb
+!ENDIF
+!IF EXIST($W\bod_cbi.ttf)
+MSOTHER=$(MSOTHER) $U\bodcbi
+!ENDIF
+!IF EXIST($W\bod_ci.ttf)
+MSOTHER=$(MSOTHER) $U\bodci
+!ENDIF
+!IF EXIST($W\bod_pstc.ttf)
+MSOTHER=$(MSOTHER) $U\bodpstc
+!ENDIF
+!IF EXIST($W\boa.ttf)
+MSOTHER=$(MSOTHER) $U\boa
+!ENDIF
+!IF EXIST($W\bragga.ttf)
+MSOTHER=$(MSOTHER) $U\bragga
+!ENDIF
+!IF EXIST($W\briemscr.ttf)
+MSOTHER=$(MSOTHER) $U\briemscr
+!ENDIF
+!IF EXIST($W\cariadng.ttf)
+MSOTHER=$(MSOTHER) $U\cariadng
+!ENDIF
+!IF EXIST($W\castelar.ttf)
+MSOTHER=$(MSOTHER) $U\castelar
+!ENDIF
+!IF EXIST($W\conbrsh.ttf)
+MSOTHER=$(MSOTHER) $U\conbrsh
+!ENDIF
+!IF EXIST($W\conbrshb.ttf)
+MSOTHER=$(MSOTHER) $U\conbrshb
+!ENDIF
+!IF EXIST($W\curlz___.ttf)
+MSOTHER=$(MSOTHER) $U\curlz
+!ENDIF
+!IF EXIST($W\desdemon.ttf)
+MSOTHER=$(MSOTHER) $U\desdemon
+!ENDIF
+!IF EXIST($W\direct.ttf)
+MSOTHER=$(MSOTHER) $U\direct
+!ENDIF
+!IF EXIST($W\eckmann.ttf)
+MSOTHER=$(MSOTHER) $U\eckmann
+!ENDIF
+!IF EXIST($W\edda.ttf)
+MSOTHER=$(MSOTHER) $U\edda
+!ENDIF
+!IF EXIST($W\elephnt.ttf)
+MSOTHER=$(MSOTHER) $U\elephnt
+!ENDIF
+!IF EXIST($W\elephnti.ttf)
+MSOTHER=$(MSOTHER) $U\elephnti
+!ENDIF
+!IF EXIST($W\engr.ttf)
+MSOTHER=$(MSOTHER) $U\engr
+!ENDIF
+!IF EXIST($W\engrb.ttf)
+MSOTHER=$(MSOTHER) $U\engrb
+!ENDIF
+!IF EXIST($W\enviro.ttf)
+MSOTHER=$(MSOTHER) $U\enviro
+!ENDIF
+!IF EXIST($W\eurosti.ttf)
+MSOTHER=$(MSOTHER) $U\eurosti
+!ENDIF
+!IF EXIST($W\eurostib.ttf)
+MSOTHER=$(MSOTHER) $U\eurostib
+!ENDIF
+!IF EXIST($W\finehand.ttf)
+MSOTHER=$(MSOTHER) $U\finehand
+!ENDIF
+!IF EXIST($W\mriamfx.ttf)
+MSOTHER=$(MSOTHER) $U\mriamfx
+!ENDIF
+!IF EXIST($W\flexure.ttf)
+MSOTHER=$(MSOTHER) $U\flexure
+!ENDIF
+!IF EXIST($W\frscript.ttf)
+MSOTHER=$(MSOTHER) $U\frscript
+!ENDIF
+!IF EXIST($W\futurab.ttf)
+MSOTHER=$(MSOTHER) $U\futurab
+!ENDIF
+!IF EXIST($W\futura.ttf)
+MSOTHER=$(MSOTHER) $U\futura
+!ENDIF
+!IF EXIST($W\futurao.ttf)
+MSOTHER=$(MSOTHER) $U\futurao
+!ENDIF
+!IF EXIST($W\garamt.ttf)
+MSOTHER=$(MSOTHER) $U\garamt
+!ENDIF
+!IF EXIST($W\garai.ttf)
+MSOTHER=$(MSOTHER) $U\garai
+!ENDIF
+!IF EXIST($W\grgaref.ttf)
+MSOTHER=$(MSOTHER) $U\grgaref
+!ENDIF
+!IF EXIST($W\gilc____.ttf)
+MSOTHER=$(MSOTHER) $U\gilc
+!ENDIF
+!IF EXIST($W\gilcb___.ttf)
+MSOTHER=$(MSOTHER) $U\gilcb
+!ENDIF
+!IF EXIST($W\glsnecb.ttf)
+MSOTHER=$(MSOTHER) $U\glsnecb
+!ENDIF
+!IF EXIST($W\goudysto.ttf)
+MSOTHER=$(MSOTHER) $U\goudysto
+!ENDIF
+!IF EXIST($W\gradl.ttf)
+MSOTHER=$(MSOTHER) $U\gradl
+!ENDIF
+!IF EXIST($W\hatten.ttf)
+MSOTHER=$(MSOTHER) $U\hatten
+!ENDIF
+!IF EXIST($W\harlowsi.ttf)
+MSOTHER=$(MSOTHER) $U\harlowsi
+!ENDIF
+!IF EXIST($W\ho.ttf)
+MSOTHER=$(MSOTHER) $U\ho
+!ENDIF
+!IF EXIST($W\infroman.ttf)
+MSOTHER=$(MSOTHER) $U\infroman
+!ENDIF
+!IF EXIST($W\key.ttf)
+MSOTHER=$(MSOTHER) $U\key
+!ENDIF
+!IF EXIST($W\kino.ttf)
+MSOTHER=$(MSOTHER) $U\kino
+!ENDIF
+!IF EXIST($W\lcd.ttf)
+MSOTHER=$(MSOTHER) $U\lcd
+!ENDIF
+!IF EXIST($W\lblack.ttf)
+MSOTHER=$(MSOTHER) $U\lblack
+!ENDIF
+!IF EXIST($W\lmath1.ttf)
+MSOTHER=$(MSOTHER) $U\lmath1
+!ENDIF
+!IF EXIST($W\lmath2.ttf)
+MSOTHER=$(MSOTHER) $U\lmath2
+!ENDIF
+!IF EXIST($W\lmath3.ttf)
+MSOTHER=$(MSOTHER) $U\lmath3
+!ENDIF
+!IF EXIST($W\mapsym.ttf)
+MSOTHER=$(MSOTHER) $U\mapsym
+!ENDIF
+!IF EXIST($W\matisse_.ttf)
+MSOTHER=$(MSOTHER) $U\matisse
+!ENDIF
+!IF EXIST($W\mczee.ttf)
+MSOTHER=$(MSOTHER) $U\mczee
+!ENDIF
+!IF EXIST($W\meadbold.ttf)
+MSOTHER=$(MSOTHER) $U\meadbold
+!ENDIF
+!IF EXIST($W\merscrb.ttf)
+MSOTHER=$(MSOTHER) $U\merscrb
+!ENDIF
+!IF EXIST($W\minionw.ttf)
+MSOTHER=$(MSOTHER) $U\minionw
+!ENDIF
+!IF EXIST($W\mriamc.ttf)
+MSOTHER=$(MSOTHER) $U\mriamc
+!ENDIF
+!IF EXIST($W\monotype.ttf)
+MSOTHER=$(MSOTHER) $U\monotype
+!ENDIF
+!IF EXIST($W\mtcorsva.ttf)
+MSOTHER=$(MSOTHER) $U\mtcorsva
+!ENDIF
+!IF EXIST($W\mtsorts.ttf)
+MSOTHER=$(MSOTHER) $U\mtsorts
+!ENDIF
+!IF EXIST($W\mtsorts2.ttf)
+MSOTHER=$(MSOTHER) $U\mtsorts2
+!ENDIF
+!IF EXIST($W\linedraw.ttf)
+MSOTHER=$(MSOTHER) $U\linedraw
+!ENDIF
+!IF EXIST($W\msgothic_02.ttf)
+MSOTHER=$(MSOTHER) $U\msgothic02
+!ENDIF
+!IF EXIST($W\msmincho_01.ttf)
+MSOTHER=$(MSOTHER) $U\msmincho01
+!ENDIF
+!IF EXIST($W\msgothic_01.ttf)
+MSOTHER=$(MSOTHER) $U\msgothic01
+!ENDIF
+!IF EXIST($W\newcal.ttf)
+MSOTHER=$(MSOTHER) $U\newcal
+!ENDIF
+!IF EXIST($W\newcalb.ttf)
+MSOTHER=$(MSOTHER) $U\newcalb
+!ENDIF
+!IF EXIST($W\newcali.ttf)
+MSOTHER=$(MSOTHER) $U\newcali
+!ENDIF
+!IF EXIST($W\ocrbnum.ttf)
+MSOTHER=$(MSOTHER) $U\ocrbnum
+!ENDIF
+!IF EXIST($W\ocraext.ttf)
+MSOTHER=$(MSOTHER) $U\ocraext
+!ENDIF
+!IF EXIST($W\oldengl.ttf)
+MSOTHER=$(MSOTHER) $U\oldengl
+!ENDIF
+!IF EXIST($W\parade.ttf)
+MSOTHER=$(MSOTHER) $U\parade
+!ENDIF
+!IF EXIST($W\parchm.ttf)
+MSOTHER=$(MSOTHER) $U\parchm
+!ENDIF
+!IF EXIST($W\pa.ttf)
+# Note troff name 'parties'
+MSOTHER=$(MSOTHER) $U\parties
+!ENDIF
+!IF EXIST($W\peignot.ttf)
+MSOTHER=$(MSOTHER) $U\peignot
+!ENDIF
+!IF EXIST($W\pepita.ttf)
+MSOTHER=$(MSOTHER) $U\pepita
+!ENDIF
+!IF EXIST($W\placcond.ttf)
+MSOTHER=$(MSOTHER) $U\placcond
+!ENDIF
+!IF EXIST($W\poorich.ttf)
+MSOTHER=$(MSOTHER) $U\poorich
+!ENDIF
+!IF EXIST($W\ransom.ttf)
+MSOTHER=$(MSOTHER) $U\ransom
+!ENDIF
+!IF EXIST($W\ransomb.ttf)
+MSOTHER=$(MSOTHER) $U\ransomb
+!ENDIF
+!IF EXIST($W\ransombi.ttf)
+MSOTHER=$(MSOTHER) $U\ransombi
+!ENDIF
+!IF EXIST($W\ransomi.ttf)
+MSOTHER=$(MSOTHER) $U\ransomi
+!ENDIF
+!IF EXIST($W\refspec.ttf)
+MSOTHER=$(MSOTHER) $U\refspec
+!ENDIF
+!IF EXIST($W\runiccn.ttf)
+MSOTHER=$(MSOTHER) $U\runiccn
+!ENDIF
+!IF EXIST($W\segoechess.ttf)
+MSOTHER=$(MSOTHER) $U\segoechess
+!ENDIF
+!IF EXIST($W\showg.ttf)
+MSOTHER=$(MSOTHER) $U\showg
+!ENDIF
+!IF EXIST($W\signs.ttf)
+MSOTHER=$(MSOTHER) $U\signs
+!ENDIF
+!IF EXIST($W\snap____.ttf)
+MSOTHER=$(MSOTHER) $U\snap
+!ENDIF
+!IF EXIST($W\spt.ttf)
+MSOTHER=$(MSOTHER) $U\spt
+!ENDIF
+!IF EXIST($W\sporttwo.ttf)
+MSOTHER=$(MSOTHER) $U\sporttwo
+!ENDIF
+!IF EXIST($W\stencil.ttf)
+MSOTHER=$(MSOTHER) $U\stencil
+!ENDIF
+!IF EXIST($W\stop.ttf)
+MSOTHER=$(MSOTHER) $U\stop
+!ENDIF
+!IF EXIST($W\tempog.ttf)
+MSOTHER=$(MSOTHER) $U\tempog
+!ENDIF
+!IF EXIST($W\offsetup.ttf)
+MSOTHER=$(MSOTHER) $U\offsetup
+!ENDIF
+!IF EXIST($W\msgeotr1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotr1
+!ENDIF
+!IF EXIST($W\msgeotb1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotb1
+!ENDIF
+!IF EXIST($W\msgeotx1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotx1
+!ENDIF
+!IF EXIST($W\msgeoti1.ttf)
+MSOTHER=$(MSOTHER) $U\msgeoti1
+!ENDIF
+!IF EXIST($W\msgeotr2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotr2
+!ENDIF
+!IF EXIST($W\msgeotb2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotb2
+!ENDIF
+!IF EXIST($W\msgeotx2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeotx2
+!ENDIF
+!IF EXIST($W\msgeoti2.ttf)
+MSOTHER=$(MSOTHER) $U\msgeoti2
+!ENDIF
+!IF EXIST($W\trans.ttf)
+MSOTHER=$(MSOTHER) $U\trans
+!ENDIF
+!IF EXIST($W\vacation.ttf)
+MSOTHER=$(MSOTHER) $U\vacation
+!ENDIF
+!IF EXIST($W\verdref.ttf)
+MSOTHER=$(MSOTHER) $U\verdref
+!ENDIF
+!IF EXIST($W\vixarasc.ttf)
+MSOTHER=$(MSOTHER) $U\vixarasc
+!ENDIF
+!IF EXIST($W\vladimir.ttf)
+MSOTHER=$(MSOTHER) $U\vladimir
+!ENDIF
+!IF EXIST($W\westm.ttf)
+MSOTHER=$(MSOTHER) $U\westm
+!ENDIF
+
+WINFONTS = $(WIN10FONTS) $(WIN10FOD) $(MSOFFICE) $(MSOTHER)
+
+all:: $U\DESC $(URWFONTS) $(CMFONTS) $(CMUFONTS) $(WINFONTS)
+    @echo Computer Modern fonts:
+    @echo $(CMFONTS) $(CMUFONTS)
+    @echo Core system fonts:
+    @echo $(WIN10FONTS)
+    @echo Additional fonts:
+    @echo $(WIN10FOD)
+    @echo Microsoft office fonts:
+    @echo $(MSOFFICE)
+    @echo Other Microsoft fonts:
+    @echo $(MSOTHER)
+
+clean::
+    if exist devutf rmdir /s /q devutf
+
+$U\DESC:
+    @if not exist $U mkdir $U
+    echo fonts 10 R I B BI CR HR HI HB S1 S >$@
+    echo res $(RES) >>$@
+    echo hor 1 >>$@
+    echo ver 1 >>$@
+    echo unitwidth 10 >>$@
+
+# Standard fonts (URW35)
+
+# Now use the TrueType fonts
+#    @if not exist $U mkdir $U
+#    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\AB: $F\URWGothic-Demi.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWGothic-Demi.ttf -pAvantGarde-Demi > $@
+$U\AI: $F\URWGothic-BookOblique.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWGothic-BookOblique.ttf -pAvantGarde-BookOblique > $@
+$U\AR: $F\URWGothic-Book.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWGothic-Book.ttf -pAvantGarde-Book > $@
+$U\AX: $F\URWGothic-DemiOblique.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWGothic-DemiOblique.ttf -pAvantGarde-DemiOblique > $@
+$U\B: $F\NimbusRoman-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusRoman-Bold.ttf -pTimes-Bold > $@
+$U\BI: $F\NimbusRoman-BoldItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusRoman-BoldItalic.ttf -pTimes-BoldItalic > $@
+$U\CB: $F\NimbusMonoPS-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusMonoPS-Bold.ttf -pCourier-Bold > $@
+$U\CI: $F\NimbusMonoPS-Italic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusMonoPS-Italic.ttf -pCourier-Oblique > $@
+$U\CR: $F\NimbusMonoPS-Regular.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusMonoPS-Regular.ttf -pCourier > $@
+$U\CX: $F\NimbusMonoPS-BoldItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusMonoPS-BoldItalic.ttf -pCourier-BoldOblique > $@
+$U\HB: $F\NimbusSans-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSans-Bold.ttf -pHelvetica-Bold > $@
+$U\HI: $F\NimbusSans-Italic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSans-Italic.ttf -pHelvetica-Oblique > $@
+# Hb
+$U\HNB: $F\NimbusSansNarrow-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSansNarrow-Bold.ttf -pHelvetica-Narrow-Bold > $@
+# Hi
+$U\HNI: $F\NimbusSansNarrow-Oblique.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSansNarrow-Oblique.ttf -pHelvetica-Narrow-Oblique > $@
+# Hr
+$U\HNR: $F\NimbusSansNarrow-Regular.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSansNarrow-Regular.ttf -pHelvetica-Narrow > $@
+# Hx
+$U\HNX: $F\NimbusSansNarrow-BoldOblique.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSansNarrow-BoldOblique.ttf -pHelvetica-Narrow-BoldOblique > $@
+$U\HR: $F\NimbusSans-Regular.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSans-Regular.ttf -pHelvetica > $@
+$U\HX: $F\NimbusSans-BoldItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusSans-BoldItalic.ttf -pHelvetica-BoldOblique > $@
+$U\I: $F\NimbusRoman-Italic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusRoman-Italic.ttf -pTimes-Italic > $@
+$U\KB: $F\URWBookman-Demi.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWBookman-Demi.ttf -pBookman-Demi > $@
+$U\KI: $F\URWBookman-LightItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWBookman-LightItalic.ttf -pBookman-LightItalic > $@
+$U\KR: $F\URWBookman-Light.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWBookman-Light.ttf -pBookman-Light > $@
+$U\KX: $F\URWBookman-DemiItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\URWBookman-DemiItalic.ttf -pBookman-DemiItalic > $@
+$U\NB: $F\C059-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\C059-Bold.ttf -pNewCenturySchlbk-Bold > $@
+$U\NI: $F\C059-Italic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\C059-Italic.ttf -pNewCenturySchlbk-Italic > $@
+$U\NR: $F\C059-Roman.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\C059-Roman.ttf -pNewCenturySchlbk-Roman > $@
+$U\NX: $F\C059-BdIta.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\C059-BdIta.ttf -pNewCenturySchlbk-BoldItalic > $@
+$U\PA: $F\P052-Roman.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\P052-Roman.ttf -pPalatino-Roman > $@
+$U\PB: $F\P052-Bold.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\P052-Bold.ttf -pPalatino-Bold > $@
+$U\PI: $F\P052-Italic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\P052-Italic.ttf -pPalatino-Italic > $@
+$U\PR: $F\P052-Roman.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\P052-Roman.ttf -pPalatino-Roman > $@
+$U\PX: $F\P052-BoldItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\P052-BoldItalic.ttf -pPalatino-BoldItalic > $@
+$U\R: $F\NimbusRoman-Regular.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusRoman-Regular.ttf -pTimes-Roman > $@
+$U\S: $F\StandardSymbolsPS.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\StandardSymbolsPS.ttf -pSymbol -s > $@
+$U\S1: $F\NimbusRoman-Regular.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\NimbusRoman-Regular.ttf -pTimes-Roman -s > $@
+$U\ZI: $F\Z003-MediumItalic.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\Z003-MediumItalic.ttf -pZapfChancery-MediumItalic > $@
+
+$U\C059-BdIta: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\C059-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\C059-Italic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\C059-Roman: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\D050000L: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusMonoPS-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusMonoPS-BoldItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusMonoPS-Italic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusMonoPS-Regular: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusRoman-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusRoman-BoldItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusRoman-Italic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusRoman-Regular: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSans-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSans-BoldItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSans-Italic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSans-Regular: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSansNarrow-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSansNarrow-BoldOblique: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSansNarrow-Oblique: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\NimbusSansNarrow-Regular: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\P052-Bold: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\P052-BoldItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\P052-Italic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\P052-Roman: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\StandardSymbolsPS: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWBookman-Demi: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWBookman-DemiItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWBookman-Light: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWBookman-LightItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWGothic-Book: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWGothic-BookOblique: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWGothic-Demi: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\URWGothic-DemiOblique: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+$U\Z003-MediumItalic: $F\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+
+!IF 0
+# Rules for old files (Type 1 fonts)
+$U\AB: $F\URWGothic-Demi.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWGothic-Demi.t1 -pAvantGarde-Demi < $F\URWGothic-Demi.afm > $@
+$U\AI: $F\URWGothic-BookOblique.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWGothic-BookOblique.t1 -pAvantGarde-BookOblique < $F\URWGothic-BookOblique.afm > $@
+$U\AR: $F\URWGothic-Book.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWGothic-Book.t1 -pAvantGarde-Book < $F\URWGothic-Book.afm > $@
+$U\AX: $F\URWGothic-DemiOblique.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWGothic-DemiOblique.t1 -pAvantGarde-DemiOblique < $F\URWGothic-DemiOblique.afm > $@
+$U\B: $F\NimbusRoman-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusRoman-Bold.t1 -pTimes-Bold < $F\NimbusRoman-Bold.afm > $@
+$U\BI: $F\NimbusRoman-BoldItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusRoman-BoldItalic.t1 -pTimes-BoldItalic < $F\NimbusRoman-BoldItalic.afm > $@
+$U\CB: $F\NimbusMonoPS-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusMonoPS-Bold.t1 -pCourier-Bold < $F\NimbusMonoPS-Bold.afm > $@
+$U\CI: $F\NimbusMonoPS-Italic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusMonoPS-Italic.t1 -pCourier-Oblique < $F\NimbusMonoPS-Italic.afm > $@
+$U\CR: $F\NimbusMonoPS-Regular.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusMonoPS-Regular.t1 -pCourier < $F\NimbusMonoPS-Regular.afm > $@
+$U\CX: $F\NimbusMonoPS-BoldItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusMonoPS-BoldItalic.t1 -pCourier-BoldOblique < $F\NimbusMonoPS-BoldItalic.afm > $@
+$U\HB: $F\NimbusSans-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSans-Bold.t1 -pHelvetica-Bold < $F\NimbusSans-Bold.afm > $@
+$U\HI: $F\NimbusSans-Italic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSans-Italic.t1 -pHelvetica-Oblique < $F\NimbusSans-Italic.afm > $@
+# Hb
+$U\HNB: $F\NimbusSansNarrow-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSansNarrow-Bold.t1 -pHelvetica-Narrow-Bold < $F\NimbusSansNarrow-Bold.afm > $@
+# Hi
+$U\HNI: $F\NimbusSansNarrow-Oblique.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSansNarrow-Oblique.t1 -pHelvetica-Narrow-Oblique < $F\NimbusSansNarrow-Oblique.afm > $@
+# Hr
+$U\HNR: $F\NimbusSansNarrow-Regular.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSansNarrow-Regular.t1 -pHelvetica-Narrow < $F\NimbusSansNarrow-Regular.afm > $@
+# Hx
+$U\HNX: $F\NimbusSansNarrow-BoldOblique.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSansNarrow-BoldOblique.t1 -pHelvetica-Narrow-BoldOblique < $F\NimbusSansNarrow-BoldOblique.afm > $@
+$U\HR: $F\NimbusSans-Regular.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSans-Regular.t1 -pHelvetica < $F\NimbusSans-Regular.afm > $@
+$U\HX: $F\NimbusSans-BoldItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusSans-BoldItalic.t1 -pHelvetica-BoldOblique < $F\NimbusSans-BoldItalic.afm > $@
+$U\I: $F\NimbusRoman-Italic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusRoman-Italic.t1 -pTimes-Italic < $F\NimbusRoman-Italic.afm > $@
+$U\KB: $F\URWBookman-Demi.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWBookman-Demi.t1 -pBookman-Demi < $F\URWBookman-Demi.afm > $@
+$U\KI: $F\URWBookman-LightItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWBookman-LightItalic.t1 -pBookman-LightItalic < $F\URWBookman-LightItalic.afm > $@
+$U\KR: $F\URWBookman-Light.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWBookman-Light.t1 -pBookman-Light < $F\URWBookman-Light.afm > $@
+$U\KX: $F\URWBookman-DemiItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\URWBookman-DemiItalic.t1 -pBookman-DemiItalic < $F\URWBookman-DemiItalic.afm > $@
+$U\NB: $F\C059-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\C059-Bold.t1 -pNewCenturySchlbk-Bold < $F\C059-Bold.afm > $@
+$U\NI: $F\C059-Italic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\C059-Italic.t1 -pNewCenturySchlbk-Italic < $F\C059-Italic.afm > $@
+$U\NR: $F\C059-Roman.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\C059-Roman.t1 -pNewCenturySchlbk-Roman < $F\C059-Roman.afm > $@
+$U\NX: $F\C059-BdIta.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\C059-BdIta.t1 -pNewCenturySchlbk-BoldItalic < $F\C059-BdIta.afm > $@
+$U\PA: $F\P052-Roman.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\P052-Roman.t1 -pPalatino-Roman < $F\P052-Roman.afm > $@
+$U\PB: $F\P052-Bold.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\P052-Bold.t1 -pPalatino-Bold < $F\P052-Bold.afm > $@
+$U\PI: $F\P052-Italic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\P052-Italic.t1 -pPalatino-Italic < $F\P052-Italic.afm > $@
+$U\PR: $F\P052-Roman.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\P052-Roman.t1 -pPalatino-Roman < $F\P052-Roman.afm > $@
+$U\PX: $F\P052-BoldItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\P052-BoldItalic.t1 -pPalatino-BoldItalic < $F\P052-BoldItalic.afm > $@
+$U\R: $F\NimbusRoman-Regular.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusRoman-Regular.t1 -pTimes-Roman < $F\NimbusRoman-Regular.afm > $@
+$U\S: $F\StandardSymbolsPS.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\StandardSymbolsPS.t1 -pSymbol -s < $F\StandardSymbolsPS.afm > $@
+$U\S1: $F\NimbusRoman-Regular.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\NimbusRoman-Regular.t1 -pTimes-Roman -s < $F\NimbusRoman-Regular.afm > $@
+$U\ZI: $F\Z003-MediumItalic.afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\Z003-MediumItalic.t1 -pZapfChancery-MediumItalic < $F\Z003-MediumItalic.afm > $@
+
+$U\NimbusMonoPS-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusMonoPS-BoldItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusMonoPS-Italic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusMonoPS-Regular: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusRoman-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusRoman-BoldItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusRoman-Italic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusRoman-Regular: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSans-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+NimbusSans-BoldItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSans-Italic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSans-Regular: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSansNarrow-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSansNarrow-BoldOblique: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSansNarrow-Oblique: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\NimbusSansNarrow-Regular: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\P052-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\P052-BoldItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\P052-Italic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\P052-Roman: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\StandardSymbolsPS: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWBookman-Demi: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWBookman-DemiItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWBookman-Light: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWBookman-LightItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWGothic-Book: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWGothic-BookOblique: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWGothic-Demi: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\URWGothic-DemiOblique: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\Z003-MediumItalic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+!ENDIF
+
+# Computer Modern (Adobe Type 1)
+
+$U\cmb10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Bold10 > $@
+$U\cmbsy10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Symbol10 > $@
+$U\cmbx5: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended5 > $@
+$U\cmbx7: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended7 > $@
+$U\cmbx8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended8 > $@
+$U\cmbx9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended9 > $@
+$U\cmbx10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended10 > $@
+$U\cmbx12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtended12 > $@
+$U\cmbxsl10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtendedSlanted10 > $@
+$U\cmbxti10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-BoldExtendedItalic10 > $@
+$U\cmcsc10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SmallCaps10 > $@
+$U\cmdunh10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Stretched10 > $@
+$U\cmex10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathExtension10 > $@
+$U\cmff10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-FunnyRoman10 > $@
+$U\cmfi10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-FunnyItalic10 > $@
+$U\cmfib8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Fibonnaci8 > $@
+$U\cminch: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-InchTitle > $@
+$U\cmitt10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic10 > $@
+$U\cmmi10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic10 > $@
+$U\cmmi12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic12 > $@
+$U\cmmi5: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic5 > $@
+$U\cmmi6: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic6 > $@
+$U\cmmi7: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic7 > $@
+$U\cmmi8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic8 > $@
+$U\cmmi9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathItalic9 > $@
+$U\cmmib10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathBoldItalic10 > $@
+$U\cmr5: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman5 > $@
+$U\cmr6: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman6 > $@
+$U\cmr7: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman7 > $@
+$U\cmr8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman8 > $@
+$U\cmr9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman9 > $@
+$U\cmr10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman10 > $@
+$U\cmr12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman12 > $@
+$U\cmr17: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Roman17 > $@
+$U\cmsl8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Slanted8 > $@
+$U\cmsl9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Slanted9 > $@
+$U\cmsl10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Slanted10 > $@
+$U\cmsl12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Slanted12 > $@
+$U\cmsltt10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterSlanted10 > $@
+$U\cmss8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerif8 > $@
+$U\cmss9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerif9 > $@
+$U\cmss10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerif10 > $@
+$U\cmss12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerif12 > $@
+$U\cmss17: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerif17 > $@
+$U\cmssbx10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifBoldExtended10 > $@
+$U\cmssdc10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifDemiboldCondensed10 > $@
+$U\cmssi8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifItalic8 > $@
+$U\cmssi9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifItalic9 > $@
+$U\cmssi10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifItalic10 > $@
+$U\cmssi12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifItalic12 > $@
+$U\cmssi17: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifItalic17 > $@
+$U\cmssq8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifQuotations8 > $@
+$U\cmssqi8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-SanSerifQuotationsItalic8 > $@
+$U\cmsy5: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol5 > $@
+$U\cmsy6: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol6 > $@
+$U\cmsy7: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol7 > $@
+$U\cmsy8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol8 > $@
+$U\cmsy9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol9 > $@
+$U\cmsy10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-MathSymbol10 > $@
+$U\cmtcsc10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterSmallCaps10 > $@
+$U\cmtex8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterExtended8 > $@
+$U\cmtex9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterExtended9 > $@
+$U\cmtex10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterExtended10 > $@
+$U\cmti7: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic7 > $@
+$U\cmti8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic8 > $@
+$U\cmti9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic9 > $@
+$U\cmti10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic10 > $@
+$U\cmti12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterItalic12 > $@
+$U\cmtt8: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Typewriter8 > $@
+$U\cmtt9: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Typewriter9 > $@
+$U\cmtt10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Typewriter10 > $@
+$U\cmtt12: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-Typewriter12 > $@
+$U\cmvtt10: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).pfb < $F\$(@B).afm -p ComputerModern-TypewriterVariable10 > $@
+
+# Computer Modern Unicode (OpenType)
+
+$U\cmunbbx: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbi: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbl: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbmo: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbmr: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbso: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbsr: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbtl: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbto: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbx: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunbxo: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunci: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunit: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunobi: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunobx: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunorm: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunoti: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunrb: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunrm: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunsi: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunsl: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunso: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunss: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunssdc: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunst: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunsx: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmuntb: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunti: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmuntt: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmuntx: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunui: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunvi: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+$U\cmunvt: $V\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $V\$(@B).ttf > $@
+
+# Windows 10 system fonts
+
+$U\arial: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ariali: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ariblk: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bahnschrift: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibril: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibrili: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibri: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibrii: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibrib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calibriz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cambria: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\cambriai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cambriab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cambriaz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candaral: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candarali: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candara: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candarai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candarab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\candaraz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\comic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\comici: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\comicbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\comicz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\consola: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\consolai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\consolab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\consolaz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\constan: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\constani: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\constanb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\constanz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbell: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbelli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbel: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbeli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbelb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\corbelz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cour: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\couri: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\courbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\courbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ebrima: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p Ebrima > $@
+$U\ebrimabd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p Ebrima-Bold > $@
+$U\framd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\framdit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gabriola: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gadugi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gadugib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgia: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiaz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\holomdl2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p Hololens-MDL2 > $@
+$U\impact: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\inkfree: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\javatext: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\leelawui: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p LeelawadeeUI > $@
+$U\leeluisl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p LeelawadeeUI-Semilight > $@
+$U\leelauib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p LeelawadeeUI-Bold > $@
+$U\lucon: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\l10646: $W\l_10646.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\l_10646.ttf > $@
+$U\malgun: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\malgunbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\malgunsl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\marlett: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\himalaya: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msjhl: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p JhengHei-Light > $@
+$U\msjh: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p JhengHei > $@
+$U\msjhbd: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p JhengHei-Bold > $@
+$U\ntailu: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ntailub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\phagspa: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\phagspab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\micross: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\taile: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\taileb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msyhl: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YaHei-Light > $@
+$U\msyh: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YaHei > $@
+$U\msyhbd: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YaHei-Bold > $@
+$U\msyi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p YiBaiti > $@
+$U\mingliub: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\monbaiti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgothic: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p MSGothic > $@
+$U\mvboli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mmrtext: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mmrtextb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nirmalas: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nirmala: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nirmalab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\pala: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\palai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\palab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\palabi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segmdl2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segoepr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segoesc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segoescb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segoeuil: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Light > $@
+$U\seguili: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-LightItalic > $@
+$U\segoeuisl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Semilight > $@
+$U\seguisli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-SemilightItalic > $@
+$U\segoeui: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI > $@
+$U\segoeuii: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Italic > $@
+$U\seguisb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Semibold > $@
+$U\seguisbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-SemiboldItalic > $@
+$U\segoeuib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Bold > $@
+$U\segoeuiz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-BoldItalic > $@
+$U\seguibl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Black > $@
+$U\seguibli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-BlackItalic > $@
+$U\seguihis: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\seguiemj: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\seguisym: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p SegoeUI-Symbol > $@
+$U\simsun: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\simsunb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sitka: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\sitkai: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\sitkab: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\sitkaz: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\sylfaen: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\symbol: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tahoma: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p Tahoma > $@
+$U\tahomabd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf -p Tahoma-Bold > $@
+$U\times: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\timesi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\timesbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\timesbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trebuc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trebucit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trebucbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trebucbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdana: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanaz: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\webdings: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\wingding: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\yugothl: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YuGothic-Light > $@
+$U\yugothr: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YuGothic > $@
+$U\yugothm: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YuGothic-Medium > $@
+$U\yugothb: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc -p YuGothic-Bold > $@
+
+# Windows 10 'Feature on demand' (optional)
+
+$U\aldhabi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\andlso: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arabtype: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msuighur: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msuighub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\majalla: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\majallab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simpo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simpbdo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simpfxo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trado: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tradbdo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\urdtype: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\urdtypeb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\shonar: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\shonarb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vrinda: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vrindab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\euphemia: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\plantc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\aparaj: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\aparaji: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\aparajb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\aparajbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kokila: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kokilai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kokilab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kokilabi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mangal: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mangalb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sanskr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\utsaah: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\utsaahi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\utsaahb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\utsaahbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nyala: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\shruti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\shrutib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\raavi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\raavib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\dengl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\deng: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\dengb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simfang: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simkai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\simhei: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kaiu: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mingliu: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\ahronbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\david: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\davidbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frank: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gisha: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gishabd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lvnm: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lvnmdb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mriam: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mriamc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nrkis: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rod: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\biz-udgothicr: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\biz-udgothicb: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\biz-udminchom: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\meiryo: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\meiryob: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\msmincho: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\uddigikyokashon-b: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\uddigikyokashon-r: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\yuminl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\yumin: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\yumindb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tunga: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tungab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daunpenh: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\khmerui: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\khermuib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\moolbor: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\batang: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\gulim: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\dokchamp: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\laoui: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\laouib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kartika: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kartikab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kalinga: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kalingab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnova-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnovacond-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-semibold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-semibolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georigiapro-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-black: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-blackitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condlight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condlightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condregular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-conditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condsemibold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condsemibolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condbold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condbolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condblack: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\georgiapro-condblackitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanslightnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanslightitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansbonova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansboitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansultrabonova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondlightnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondlightitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsansconditnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondbonova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondboitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondextranova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondextraitnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillsanscondultrabonova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nhaasgrotesktxpro-55rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nhaasgrotesktxpro-65md: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nhaasgrotesktxpro-66mdlt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nhaasgrotesktxpro-75bd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nhaasgrotesktxpro-76bdit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnovacond-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-extrabold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-extrabolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockwellnova-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-semibold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-semibolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-black: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-blackitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condlight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condlightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condregular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-conditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condsemibold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condsemibolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condbold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condbolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condblack: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdanapro-condblackitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\iskoola: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\iskoolab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\estre: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\latha: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lathab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vijaya: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vijayab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gautami: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gautamib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vani: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vanib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\angsana: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\browalia: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\cordia: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\upcdl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcdi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcdb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcdbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcel: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcei: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upceb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcebi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcfl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcfi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcfb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcfbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcil: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcii: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcibi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcjl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcji: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcjb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcjbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upckl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcki: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upckb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upckbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\leelawad: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\leelawdb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcll: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upcli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upclb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\upclbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+
+# Microsoft Office
+
+$U\abadi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\abadiexlt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\agencyr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\agencyb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\alger: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialn: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialni: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialnbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-boldit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\avenirnextltpro-lightit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\baskvill: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bembo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bemboi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\brlnsr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\brlnsb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\brlnsdb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bernhc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\biome: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\biome-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\biome-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\biome-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ltcblkad: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bodr: $W\bod_r.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_r.ttf > $@
+$U\bodblar: $W\bod_blar.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_blar.ttf > $@
+$U\bodblai: $W\bod_blai.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_blai.ttf > $@
+$U\bodb: $W\bod_b.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_b.ttf > $@
+$U\bodbi: $W\bod_bi.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_bi.ttf > $@
+$U\bodi: $W\bod_i.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_i.ttf > $@
+$U\bookos: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bookosb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bookosbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bookosi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bssym1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bssym2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bssym3: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+"$U\bookshelf symbol 7": $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bkant: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bradhitc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\britanic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\broadw: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\brushsci: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\califr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\califb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\califi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calist: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calistb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calistbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\calisti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cavolini: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cavolini-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cavolini-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cavolini-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\centaur: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\century: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gothic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gothicb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gothicbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gothici: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\censcbo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\schlbkb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\schlbkbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\schlbki: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\chiller: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\colonna: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\coopbl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\coprgtb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\coprgtl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\dante: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytona: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonabold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonabolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonaitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonapro-cond: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonapro-condlight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonapro-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\daytonapro-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\itcedscr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\erasbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\erasdemi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\eraslght: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\erasmd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\erasult: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\felixti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ftltlt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\forte: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frabk: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frabkit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\fradm: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\fradmcn: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\fradmit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frahv: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frahvit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\framdcn: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\freesscpt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gara: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\garabd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\garait: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gigi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gil: $W\gil_____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gil_____.ttf > $@
+$U\gilb: $W\gilb____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gilb____.ttf > $@
+$U\gilbi: $W\gilbi___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gilbi___.ttf > $@
+$U\gili: $W\gili____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gili____.ttf > $@
+$U\gilsanub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gillubcd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\glecb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\goudos: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\goudosb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\goudosi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\grotesque: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\grotesqueb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\grotesquel: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hadasah: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hadasahb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\harngton: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hggothice: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgpgothice: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgsgothice: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgmine: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgpmine: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgsmine: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgsoeikakugothicub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgpsoeikakugothicub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hgssoeikakugothicub: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\htowert: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\htowerti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\imprisha: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\jokerman: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\juice: $W\juice___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\juice___.ttf > $@
+$U\kigeliaarabic-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigeliaarabic-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kigelia-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\itckrist: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kunstler: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lbrite: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lbrited: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lbritedi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lbritei: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lcallig: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lfaxd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lfaxdi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lfaxi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lfax: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lhandw: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lsansdi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lsansd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lsansi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lsans: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ltypeb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ltypebo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ltypeo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ltype: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\magnetob: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\maian: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\maiandb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\maiandit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\maturasc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgothicneo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgothicneobold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgothicneolight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mistral: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\modernlove-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\modernlove-caps: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\modernlove-grunge: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mod20: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\outlook: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msref1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msref2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+"$U\ms reference sans serif": $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\refsanb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\refsanbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\refsani: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+"$U\ms reference specialty": $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mtextra: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nwgthc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nwgthcb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\nwgthci: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\niageng: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\niagsol: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ocrb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\onyx: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\palscri: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\papyrus: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\per: $W\per_____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\per_____.ttf > $@
+$U\perb: $W\perb____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\perb____.ttf > $@
+$U\perbi: $W\perbi___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\perbi___.ttf > $@
+$U\peri: $W\peri____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\peri____.ttf > $@
+$U\pertibd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\pertili: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\playbill: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\posterama-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\posterama-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\posterama-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\posterama-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\pristina: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresans-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresans-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresans-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresans-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresanspro-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\quiresanspro-lightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rage: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ravie: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rock: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockbi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rocc: $W\rocc____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\rocc____.ttf > $@
+$U\roccb: $W\roccb___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\roccb___.ttf > $@
+$U\rockeb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rocki: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\rockl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sabonnreglt: $W\sabonnreglt_57607.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\sabonnreglt_57607.ttf > $@
+$U\sabonnbollt: $W\sabonnbollt_57570.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\sabonnbollt_57570.ttf > $@
+$U\sabonnbolitalt: $W\sabonnbolitalt_57572.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\sabonnbolitalt_57572.ttf > $@
+$U\sabonnregitalt: $W\sabonnregitalt_57602.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\sabonnregitalt_57602.ttf > $@
+$U\sagona-book: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sagona-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sagona-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sagona-bookitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sagona-extralight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sagona-extralightitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\scriptbl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\selawk: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\selawkb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\selawkl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\selawksb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\selawksl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stcaiyun: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stfangso: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sthupo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stkaiti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stxihei: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stxingka: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stxinwei: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stzhongs: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tempsitc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\thehandregular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\thehandblack: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\thehandbold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\thehandextrablack: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\thehandlight: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\the-serif-hand-regular-v2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\the-serif-hand-black-v2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\the-serif-hand-bold-v2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\the-serif-hand-extrablk-v2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\the-serif-hand-light-v2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro-bolditalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro-italic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro-thin: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tisaoffcserifpro-thinitalic: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tcm: $W\tcm_____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tcm_____.ttf > $@
+$U\tcb: $W\tcb_____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tcb_____.ttf > $@
+$U\tcbi: $W\tcbi____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tcbi____.ttf > $@
+$U\tcmi: $W\tcmi____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tcmi____.ttf > $@
+$U\tccm: $W\tccm____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tccm____.ttf > $@
+$U\tccb: $W\tccb____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\tccb____.ttf > $@
+$U\tcceb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\uddigikyokashon-b: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\uddigikyokashon-r: $W\$(@B).ttc
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttc > $@
+$U\univers-regular: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\univers-condensed: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\univers-light: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\univers-lightcondensed: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\univers-bold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\univers-boldcondensed: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vineritc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vivaldii: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-bd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-bdit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-hv-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-hv-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-lt-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-lt-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-sb-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumdisp-sb-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumhead-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumhead-bd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumhead-bdit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumhead-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumtext-rg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumtext-bd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumtext-bdit: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\walbaumtext-it: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\latinwd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+
+# Other Microsoft fonts (historical?)
+
+$U\almanac: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ameriunc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\andalemo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\andyb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\artro: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\artrbdo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arlrdbd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeonr1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeonb1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeoni1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeonr2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeonb2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeoni2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\arialuni: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\augsburg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bauhs93: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\beesknee: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bell: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bellb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\belli: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bicklysc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bodcr: $W\bod_cr.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_cr.ttf > $@
+$U\bodcb: $W\bod_cb.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_cb.ttf > $@
+$U\bodcbi: $W\bod_cbi.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_cbi.ttf > $@
+$U\bodci: $W\bod_ci.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_ci.ttf > $@
+$U\bodpstc: $W\bod_pstc.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\bod_pstc.ttf > $@
+$U\boa: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\bragga: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\briemscr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\cariadng: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\castelar: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\conbrsh: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\conbrshb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\curlz: $W\curlz___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\curlz___.ttf > $@
+$U\desdemon: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\direct: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\eckmann: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\edda: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\elephnt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\elephnti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\engr: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\engrb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\enviro: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\eurosti: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\eurostib: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\finehand: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mriamfx: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\flexure: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\frscript: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\futurab: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\futura: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\futurao: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\garamt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\garai: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\grgaref: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gilc: $W\gilc____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gilc____.ttf > $@
+$U\gilcb: $W\gilcb___.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\gilcb___.ttf > $@
+$U\glsnecb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\goudysto: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\gradl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\hatten: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\harlowsi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ho: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\infroman: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\key: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\kino: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lcd: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lblack: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lmath1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lmath2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\lmath3: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mapsym: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\matisse: $W\matisse_.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\matisse_.ttf > $@
+$U\mczee: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\meadbold: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\merscrb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\minionw: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mriamc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\monotype: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mtcorsva: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mtsorts: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\mtsorts2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\linedraw: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgothic02: $W\msgothic_02.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\msgothic_02.ttf > $@
+$U\msmincho01: $W\msmincho_01.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\msmincho_01.ttf > $@
+$U\msgothic01: $W\msgothic_01.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\msgothic_01.ttf > $@
+$U\newcal: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\newcalb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\newcali: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ocrbnum: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ocraext: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\oldengl: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\parade: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\parchm: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\parties: $W\pa.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -tparties -f $W\pa.ttf > $@
+$U\peignot: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\pepita: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\placcond: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\poorich: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ransom: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ransomb: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ransombi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\ransomi: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\refspec: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\runiccn: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\segoechess: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\showg: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\signs: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\snap: $W\snap____.ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\snap____.ttf > $@
+$U\spt: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\sporttwo: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stencil: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\stop: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\tempog: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\offsetup: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotr1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotb1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotx1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeoti1: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotr2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotb2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeotx2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\msgeoti2: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\trans: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vacation: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\verdref: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vixarasc: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\vladimir: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+$U\westm: $W\$(@B).ttf
+    @if not exist $U mkdir $U
+    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
+
+!ENDIF

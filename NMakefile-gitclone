@@ -1,0 +1,70 @@
+# Original sources maintained on git (forked from aligrudi):
+# - neateqn
+# - neatroff_make   *changed from aligrudi [demo man soin tmac]
+# - neatmkfn        *changed from aligrudi
+# - neatpost        *changed from aligrudi
+# - neatrefer       # unistd -- need dummy header
+# - neatroff        *changed from aligrudi
+# - troffp9         *changed from aligrudi [pic tbl]
+#
+# Other sources used in the build (modified FreeBSD code):
+# - bsdsed
+#
+# Other 3rd party software (sources available):
+# - ghostscript
+# - mupdf
+
+# Assumptions:
+# - git command line tools installed
+
+GH = https://github.com/
+GHA = $(GH)/aligrudi
+GHL = $(GH)/laurasia99
+
+git-all: git-eqn git-mkfn git-other git-pictbl git-post git-refer git-roff git-sed
+
+# Note - can only clone into an existing directory
+
+git-eqn:
+    if exist eqn ( pushd eqn && git fetch && popd ) else git clone $(GHL)/neateqn eqn
+
+git-mkfn:
+    if exist mkfn ( pushd mkfn && git fetch && popd ) else git clone $(GHL)/neatmkfn mkfn
+
+git-other:
+    if exist other ( pushd other && git fetch && popd ) else git clone $(GHL)/neatrother other
+
+git-pictbl:
+    if exist pictbl ( pushd pictbl && git fetch && popd ) else git clone $(GHL)/troffp9 pictbl
+
+git-post:
+    if exist post ( pushd post && git fetch && popd ) else git clone $(GHL)/neatpost post
+
+git-refer:
+    if exist refer ( pushd refer && git fetch && popd ) else git clone $(GHL)/neatrefer refer
+
+git-roff:
+    if exist roff ( pushd roff && git fetch && popd ) else git clone $(GHL)/neatroff roff
+
+git-sed:
+    if exist sed ( pushd sed && git fetch && popd ) else git clone $(GHL)/bsdsed sed
+
+# Utilities
+
+sed\sed.exe: sed\Makefile
+    pushd sed && nmake $(@F) && popd
+
+sed\Makefile: git-sed
+    if not exist sed\Makefile ( echo "Error: repository 'bsdsed' not installed" ; exit 1 )
+
+show-origin: sed\sed.exe
+    ( pushd eqn && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" > tmp-origin.txt
+    ( pushd mkfn && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd other && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd pictbl && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd post && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd refer && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd roff && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    ( pushd sed && git remote show origin && popd ) | sed\sed.exe "/Fetch URL:/p;d" >> tmp-origin.txt
+    type tmp-origin.txt && del tmp-origin.txt
+

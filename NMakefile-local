@@ -1,0 +1,14 @@
+# Neatroff for Windows - local site configuration
+
+# [roff.exe post.exe] default font and macro directories
+FDIR = C:/troff/font
+MDIR = C:/troff/tmac
+
+# Download URW35 (base Type 2 fonts)
+# Recommend that these are always installed
+USE_URW35_FONTS = 1
+
+# Download AMS Computer Modern font ("TeX" font)
+# Default is to exclude these
+USE_AMS_FONTS = 1
+

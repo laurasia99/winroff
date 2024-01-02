@@ -1,0 +1,54 @@
+Neatroff for Microsoft Windows
+==============================
+
+This project contains scripts that build a complete neatroff installation
+for Microsoft Windows, using the Microsoft C++ toolset from the command
+line. Information on using the Microsoft command line tools can be found
+here:
+https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170
+
+Assumptions:
+    -   Microsoft Build Tools for Visual Studio installed
+    -   Git installed and usable from the Windows Command Shell
+        See https://github.com/git-guides/install-git
+        or https://gitforwindows.org/
+    -   Curl and tar usable from the Windows Command Shell.
+        These tools are included with recent builds of Windows 10
+        (see https://devblogs.microsoft.com/commandline/tar-and-curl-come-to-windows/)
+
+
+Steps:
+    1/  Open a windows command prompt with the development environment
+        (refer to the above article for instructions)
+
+    2/  Check that the Microsoft command line tools are accessible.
+        This can be done by using the 'where' command:
+
+            > where nmake
+
+        The response "INFO: Could not find files for the given pattern(s)"
+        indicates a problem with the development enviroment - resolve this
+        before progressing
+
+    3/  Clone this repository
+
+            > git clone https://github.com/laurasia99/winroff
+
+        This creates the subdirectory 'winroff'. Change into it (cd winroff).
+
+    4/  Review NMakefile-local, and make changes required for your development
+        environment.
+
+    5/  Run nmake (no options required; uses Makefile)
+
+            > nmake
+
+        This will download the subprojects.
+
+    6/  Run nmake again (no options required; uses Makefile)
+
+            > nmake
+
+        This will build the required subprojects, and download fonts
+        (if this is configured)
+
