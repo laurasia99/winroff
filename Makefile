@@ -36,6 +36,16 @@ all::
 _GIT_TARGET = 0
 !INCLUDE NMakefile-gitclone
 
+# Downloading/unzipping the raw fonts uses helper scripts
+# These are distributed in the 'neatrother' project, and are located
+# in other\. To simplify the build process, pull up copies into
+# this directory (avoids complex path setting)
+do-curl.bat: other\$(@F)
+    copy /y other\$(@F) $@
+do-unzip.bat: other\$(@F)
+    copy /y other\$(@F) $@
+all:: do-curl.bat do-unzip.bat
+
 # Don't assume that all of the subprojects have been downloaded
 !IF EXIST(eqn\NMakefile)
 S = .\eqn
@@ -71,16 +81,6 @@ O = $(OBJ)\other\soin
 S = .\other\pdfbb
 O = $(OBJ)\other\pdfbb
 !INCLUDE other\NMakefile-pdfbb
-
-# Downloading/unzipping the raw fonts uses helper scripts
-# These are distributed in the 'neatrother' project, and are located
-# in other\. To simplify the build process, pull up copies into
-# this directory (avoids complex path setting)
-do-curl.bat: other\$(@F)
-    copy /y other\$(@F) $@
-do-unzip.bat: other\$(@F)
-    copy /y other\$(@F) $@
-all:: do-curl.bat do-unzip.bat
 
 !IF DEFINED(USE_URW35_FONTS) && $(USE_URW35_FONTS) > 0
 !INCLUDE other\NMakefile-urw35
@@ -171,10 +171,10 @@ all:: git-rebuild-required
 
 git-rebuild-required:
     @echo +----------------------------------------------------------
-    @echo |
-    @echo | Subprojects updated - rerun ^"nmake^" to complete the build
-    @echo | Fetched: $(_GIT_PROJECT)
-    @echo |
+    @echo ^|
+    @echo ^| Subprojects updated - rerun ^"nmake^" to complete the build
+    @echo ^| Fetched: $(_GIT_PROJECT)
+    @echo ^|
     @echo +----------------------------------------------------------
 !ENDIF
 
@@ -193,8 +193,8 @@ scrub:: clean
 # Demonstration files
 # Note use of command line arguments to override compiled paths (FDIR MDIR)
 BASE = $(_CWD)
-FONTS = $(BASE)/other/fonts
-TMAC = $(BASE)/other/tmac
+#FONTS = $(BASE)fonts
+TMAC = $(BASE)other\tmac
 ROFFOPTS = -F$(BASE) -M$(TMAC)
 ROFFMACS = -mpost -mtbl -mkeep -men -msrefs
 POSTOPTS = -F$(BASE) -pa4

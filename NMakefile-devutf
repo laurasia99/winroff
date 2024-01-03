@@ -50,7 +50,7 @@ URWFONTS = $U\AB $U\AI $U\AR $U\AX $U\B $U\BI $U\CB $U\CI $U\CR $U\CX \
         $U\Z003-MediumItalic
 
 # Computer Modern - T1 fonts (*.pfb)
-!IF EXIST($U\cmb10.afm)
+!IF EXIST($F\cmb10.afm)
 CMFONTS = $U\cmb10 $U\cmbsy10 $U\cmbx5 $U\cmbx7 $U\cmbx8 $U\cmbx9 $U\cmbx10 \
         $U\cmbx12 $U\cmbxsl10 $U\cmbxti10 $U\cmcsc10 $U\cmdunh10 $U\cmex10 \
         $U\cmff10 $U\cmfi10 $U\cmfib8 $U\cminch $U\cmitt10 $U\cmmi10 \
@@ -2104,7 +2104,8 @@ $U\DESC:
 
 # Standard fonts (URW35)
 
-# Now use the TrueType fonts
+!IF 0
+# Eventually use the TrueType fonts -- currently having problems
 #    @if not exist $U mkdir $U
 #    .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $W\$(@B).ttf > $@
 $U\AB: $F\URWGothic-Demi.ttf
@@ -2325,8 +2326,9 @@ $U\URWGothic-DemiOblique: $F\$(@B).ttf
 $U\Z003-MediumItalic: $F\$(@B).ttf
     @if not exist $U mkdir $U
     .\mkfn.exe -b -l -o -r$(RES) $(SCR) -t$(@B) -f $F\$(@B).ttf > $@
+!ENDIF
 
-!IF 0
+!IF 1
 # Rules for old files (Type 1 fonts)
 $U\AB: $F\URWGothic-Demi.afm
     @if not exist $U mkdir $U
@@ -2441,6 +2443,21 @@ $U\ZI: $F\Z003-MediumItalic.afm
     @if not exist $U mkdir $U
     .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\Z003-MediumItalic.t1 -pZapfChancery-MediumItalic < $F\Z003-MediumItalic.afm > $@
 
+$U\C059-BdIta: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\C059-Bold: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\C059-Italic: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\C059-Roman: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
+$U\D050000L: $F\$(@B).afm
+    @if not exist $U mkdir $U
+    .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
 $U\NimbusMonoPS-Bold: $F\$(@B).afm
     @if not exist $U mkdir $U
     .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
@@ -2468,7 +2485,7 @@ $U\NimbusRoman-Regular: $F\$(@B).afm
 $U\NimbusSans-Bold: $F\$(@B).afm
     @if not exist $U mkdir $U
     .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
-NimbusSans-BoldItalic: $F\$(@B).afm
+$U\NimbusSans-BoldItalic: $F\$(@B).afm
     @if not exist $U mkdir $U
     .\mkfn.exe -a -b -r$(RES) -t$(@B) -f $F\$(@B).t1 < $F\$(@B).afm > $@
 $U\NimbusSans-Italic: $F\$(@B).afm

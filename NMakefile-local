@@ -9,6 +9,7 @@ MDIR = C:/troff/tmac
 USE_URW35_FONTS = 1
 
 # Download AMS Computer Modern font ("TeX" font)
-# Default is to exclude these
+# Default is to exclude these; however they are required
+# to build all of the demonstration documents in other\demo
 USE_AMS_FONTS = 1
 
