@@ -43,12 +43,38 @@ Steps:
 
             > nmake
 
-        This will download the subprojects.
+        This will download the subprojects and fonts. At the end of the
+        build you should see a message similar to:
+
+            +----------------------------------------------------------
+            |
+            | Subprojects updated - rerun "nmake" to complete the build
+            | Fetched: neateqn neatmkfn neatrother troffp9 neatpost neatrefer neatroff
+            |
+            +----------------------------------------------------------
 
     6/  Run nmake again (no options required; uses Makefile)
 
             > nmake
 
-        This will build the required subprojects, and download fonts
-        (if this is configured)
+        This will build the required subprojects.
 
+    7/  Build the demonstration documents:
+
+            > nmake demo
+
+        *** This requires GhostScript to be installed.
+
+KNOWN ISSUES/ITEMS TODO:
+    - Limited testing has been performed - more errors expected
+    - No installation target (nmake install)
+    - Error building demo documents:
+        neatroff: failed to open <\dev0at418.>
+      (from roff\tr.c[tr_so()] - still to investigate)
+    - Possible issues with building/installation across different
+      Windows drives. Currently assume that all work will be performed
+      on a single drive (noting that GhostScript can be installed on
+      another drive)
+    - Problems with URW35 TrueType fonts exist - reverted to using the
+      Type-1 fonts.
+    - Refactor NMakefile-devutf

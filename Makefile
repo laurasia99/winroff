@@ -57,7 +57,28 @@ _GIT_TARGET = 1
 _GIT_PROJECT = $(_GIT_PROJECT) neateqn
 !ENDIF
 
-# Configuring devutf depends on mkfn
+# soin.exe pdfbb.exe & download/unzip font packages
+!IF !EXIST(other\NMakefile)
+all:: git-other
+_GIT_TARGET = 1
+_GIT_PROJECT = $(_GIT_PROJECT) neatrother
+!ELSE
+S = .\other\soin
+O = $(OBJ)\soin
+!INCLUDE other\NMakefile-soin
+S = .\other\pdfbb
+O = $(OBJ)\pdfbb
+!INCLUDE other\NMakefile-pdfbb
+
+!IF DEFINED(USE_URW35_FONTS) && $(USE_URW35_FONTS) > 0
+!INCLUDE other\NMakefile-urw35
+!ENDIF
+!IF DEFINED(USE_AMS_FONTS) && $(USE_AMS_FONTS) > 0
+!INCLUDE other\NMakefile-ams
+!ENDIF
+!ENDIF # other\Makefile
+
+# Configuring devutf depends on mkfn and downloaded fonts [above]
 !IF EXIST(mkfn\NMakefile)
 S = .\mkfn
 O = $(OBJ)\mkfn
@@ -68,27 +89,6 @@ all:: git-mkfn
 _GIT_TARGET = 1
 _GIT_PROJECT = $(_GIT_PROJECT) neatmkfn
 !ENDIF
-
-# soin.exe pdfbb.exe & download/unzip font packages
-!IF !EXIST(other\NMakefile)
-all:: git-other
-_GIT_TARGET = 1
-_GIT_PROJECT = $(_GIT_PROJECT) neatrother
-!ELSE
-S = .\other\soin
-O = $(OBJ)\other\soin
-!INCLUDE other\NMakefile-soin
-S = .\other\pdfbb
-O = $(OBJ)\other\pdfbb
-!INCLUDE other\NMakefile-pdfbb
-
-!IF DEFINED(USE_URW35_FONTS) && $(USE_URW35_FONTS) > 0
-!INCLUDE other\NMakefile-urw35
-!ENDIF
-!IF DEFINED(USE_AMS_FONTS) && $(USE_AMS_FONTS) > 0
-!INCLUDE other\NMakefile-ams
-!ENDIF
-!ENDIF # other\
 
 # pic & tbl originally from Plan9; distributed together
 # Use sub-project makefiles directly
@@ -200,8 +200,11 @@ ROFFMACS = -mpost -mtbl -mkeep -men -msrefs
 POSTOPTS = -F$(BASE) -pa4
 REFROPTS = -m -e -o ct -p ref.bib
 
-# Assumes ghostscript installed
+# Assumes ghostscript installed - default to my installation directory
+# (which most probably won't work for you!)
+!IF !DEFINED(GS)
 GS = "C:\Program Files\gs\gs10.02.1\bin\gswin64c.exe"
+!ENDIF
 GSOPTS = -q -P- -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dEmbedAllFonts=true
 
 D=other\demo
